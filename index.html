@@ -1462,7 +1462,7 @@
     const container = $('recurHistoryLedger');
     container.innerHTML = '';
     const todayKey = monthKeyNow();
-    const pastGroups = groupByMonth(entries).filter((g) => g.key !== todayKey);
+    const pastGroups = groupByMonth(entries).filter((g) => g.key < todayKey);
 
     if (pastGroups.length === 0) {
       const empty = document.createElement('div');
