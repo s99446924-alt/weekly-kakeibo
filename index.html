@@ -681,6 +681,11 @@
     </div>
 
     <div id="pastPane" hidden>
+      <div class="tabbar" style="margin: 4px 20px 14px;">
+        <button class="tab active" id="recurSubTabItemsBtn" type="button">繰り返し項目</button>
+        <button class="tab" id="recurSubTabHistoryBtn" type="button">記録の履歴</button>
+      </div>
+
       <div id="recurListView">
         <div class="cat-list" id="recurList"></div>
         <div class="recur-page-foot">
@@ -734,6 +739,10 @@
           <button class="btn ghost" id="recurFormCancelBtn">キャンセル</button>
           <button class="btn primary" id="recurSaveBtn" disabled>保存</button>
         </div>
+      </div>
+
+      <div id="recurHistoryView" hidden>
+        <main class="ledger" id="recurHistoryLedger"></main>
       </div>
     </div>
 
@@ -909,6 +918,8 @@
   let recurSelectedSourceFundId = null;
   let recurSelectedDestFundId = null;
   let recurSelectedType = 'expense';
+  let recurSubTab = 'items';
+  let historyOverride = {};
 
   const $ = (id) => document.getElementById(id);
   const yen = (n) => '¥' + Math.round(Math.abs(n)).toLocaleString('ja-JP');
@@ -1046,6 +1057,7 @@
     renderRecurSourceFundChips();
     renderRecurDestFundChips();
     renderRecurList();
+    if (currentTab === 'past' && recurSubTab === 'history') renderRecurHistory();
     if (currentTab === 'graph') renderFundTable();
   }
 
@@ -1375,6 +1387,87 @@
     container.appendChild(buildCurrentMonthBlock(currentGroup));
     for (const ug of upcomingGroups) {
       container.appendChild(buildUpcomingMonthBlock(ug, ug.key === firstUpcomingKey));
+    }
+  }
+
+  function buildHistoryMonthBlock(group, isOpen) {
+    let income = 0, expense = 0;
+    for (const e of group.items) { if (e.type === 'income') income += e.amount; else expense += e.amount; }
+    const net = income - expense;
+
+    const wrap = document.createElement('div');
+    wrap.className = 'month-group' + (isOpen ? ' open' : '');
+
+    const head = document.createElement('button');
+    head.type = 'button';
+    head.className = 'month-head';
+    const titleSpan = document.createElement('span');
+    titleSpan.className = 'month-title';
+    titleSpan.textContent = monthLabel(group.key);
+    const peek = document.createElement('span');
+    peek.className = 'month-peek';
+    const netSpan = document.createElement('span');
+    netSpan.className = 'month-net num';
+    netSpan.style.color = net >= 0 ? 'var(--income)' : 'var(--expense)';
+    netSpan.textContent = (net < 0 ? '−' : '+') + yen(net);
+    const chev = document.createElement('span');
+    chev.className = 'chevron';
+    chev.textContent = '▾';
+    peek.appendChild(netSpan);
+    peek.appendChild(chev);
+    head.appendChild(titleSpan);
+    head.appendChild(peek);
+    head.addEventListener('click', () => {
+      historyOverride[group.key] = !isOpen;
+      renderRecurHistory();
+    });
+    wrap.appendChild(head);
+
+    if (isOpen) {
+      const entriesWrap = document.createElement('div');
+      entriesWrap.className = 'month-entries';
+      for (const e of group.items) {
+        entriesWrap.appendChild(buildEntryRow(e));
+      }
+      wrap.appendChild(entriesWrap);
+
+      const totalRow = document.createElement('div');
+      totalRow.className = 'month-total';
+      const label = document.createElement('span');
+      label.className = 'label';
+      label.textContent = monthLabel(group.key) + ' 合計';
+      const breakdown = document.createElement('span');
+      breakdown.className = 'breakdown num';
+      breakdown.innerHTML = '<span>収入 ' + yen(income) + '</span><span>支出 ' + yen(expense) + '</span>';
+      const netTotal = document.createElement('span');
+      netTotal.className = 'num';
+      netTotal.textContent = (net < 0 ? '−' : '+') + yen(net);
+      totalRow.appendChild(label);
+      totalRow.appendChild(breakdown);
+      totalRow.appendChild(netTotal);
+      wrap.appendChild(totalRow);
+    }
+    return wrap;
+  }
+
+  function renderRecurHistory() {
+    const container = $('recurHistoryLedger');
+    container.innerHTML = '';
+    const todayKey = monthKeyNow();
+    const pastGroups = groupByMonth(entries).filter((g) => g.key !== todayKey);
+
+    if (pastGroups.length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'state-card';
+      empty.innerHTML = '<span class="glyph">🗂️</span>過去の記録はまだありません。';
+      container.appendChild(empty);
+      return;
+    }
+
+    const newestPastKey = pastGroups[0].key;
+    for (const group of pastGroups) {
+      const isOpen = group.key in historyOverride ? historyOverride[group.key] : group.key === newestPastKey;
+      container.appendChild(buildHistoryMonthBlock(group, isOpen));
     }
   }
 
@@ -1867,6 +1960,19 @@
     $('recurListView').hidden = false;
   }
 
+  function switchRecurSubTab(tab) {
+    recurSubTab = tab;
+    $('recurSubTabItemsBtn').classList.toggle('active', tab === 'items');
+    $('recurSubTabHistoryBtn').classList.toggle('active', tab === 'history');
+    $('recurListView').hidden = tab !== 'items';
+    $('recurFormView').hidden = true;
+    $('recurHistoryView').hidden = tab !== 'history';
+    if (tab === 'items') renderRecurList();
+    if (tab === 'history') renderRecurHistory();
+  }
+  $('recurSubTabItemsBtn').addEventListener('click', () => switchRecurSubTab('items'));
+  $('recurSubTabHistoryBtn').addEventListener('click', () => switchRecurSubTab('history'));
+
   $('recurAddOpenBtn').addEventListener('click', () => openRecurForm(null));
   $('recurFormCancelBtn').addEventListener('click', closeRecurForm);
   $('recurFormCloseBtn').addEventListener('click', closeRecurForm);
@@ -1956,11 +2062,7 @@
     $('pastPane').hidden = tab !== 'past';
     $('graphPane').hidden = tab !== 'graph';
     $('addBtn').hidden = tab !== 'ledger';
-    if (tab === 'past') {
-      $('recurListView').hidden = false;
-      $('recurFormView').hidden = true;
-      renderRecurList();
-    }
+    if (tab === 'past') switchRecurSubTab('items');
     if (tab === 'graph') renderFundTable();
   }
   $('tabLedgerBtn').addEventListener('click', () => switchTab('ledger'));
