@@ -9,8 +9,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="家計簿" />
-<meta name="mobile-web-app-capable" content="yes" />
-<title>週次家計簿</title>
+<meta name="mobile-web-app-capable" content="yes" /><title>週次家計簿</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
 <style>
   :root {
@@ -523,7 +522,8 @@
   .tab.active { background: var(--accent); color: var(--accent-ink); }
 
   .table-scroll {
-    overflow-x: auto;
+    overflow: auto;
+    max-height: 68vh;
     margin: 4px 20px 18px;
     background: var(--surface-raised);
     border-radius: 18px;
@@ -545,6 +545,10 @@
     font-weight: 700;
     color: var(--ink-soft);
     border-bottom: 1px solid var(--line);
+    position: sticky;
+    top: 0;
+    background: var(--surface-raised);
+    z-index: 2;
   }
   .fund-table .th-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; }
   .fund-table .fund-table-month {
@@ -557,6 +561,7 @@
     box-shadow: 1px 0 0 var(--line);
     z-index: 1;
   }
+  .fund-table thead th.fund-table-month { z-index: 3; }
   .fund-table th.fund-table-gap, .fund-table td.fund-table-gap { width: 18px; padding: 0; border: none; }
   .fund-table tbody tr { border-bottom: 1px solid var(--line); }
   .fund-table tbody tr:last-child { border-bottom: none; }
