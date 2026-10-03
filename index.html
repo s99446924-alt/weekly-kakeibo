@@ -522,11 +522,16 @@
   .tab.active { background: var(--accent); color: var(--accent-ink); }
 
   .table-scroll {
-    overflow-x: auto;
+    overflow: auto;
+    max-height: 68vh;
+    margin: 4px 20px 18px;
+    background: var(--surface-raised);
+    border-radius: 18px;
+    box-shadow: var(--shadow);
   }
   .fund-table {
     width: 100%;
-    min-width: 480px;
+    min-width: 520px;
     border-collapse: collapse;
     font-size: 0.82rem;
   }
@@ -540,6 +545,10 @@
     font-weight: 700;
     color: var(--ink-soft);
     border-bottom: 1px solid var(--line);
+    position: sticky;
+    top: 0;
+    background: var(--surface-raised);
+    z-index: 2;
   }
   .fund-table .th-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; }
   .fund-table .fund-table-month {
@@ -552,9 +561,11 @@
     box-shadow: 1px 0 0 var(--line);
     z-index: 1;
   }
+  .fund-table thead th.fund-table-month { z-index: 3; }
   .fund-table th.fund-table-gap, .fund-table td.fund-table-gap { width: 18px; padding: 0; border: none; }
   .fund-table tbody tr { border-bottom: 1px solid var(--line); }
   .fund-table tbody tr:last-child { border-bottom: none; }
+  .fund-table tbody tr.month-boundary { border-top: 3px solid var(--ink-faint); }
   .fund-table tbody td.num { color: var(--ink); }
   .fund-table tbody td.fund-col-total { font-weight: 700; }
   .fund-table tbody tr.upcoming-table-row { color: var(--ink-faint); }
@@ -735,7 +746,22 @@
     </div>
 
     <div id="graphPane" hidden>
-      <main class="ledger" id="fundTableContainer"></main>
+      <div class="table-scroll" id="fundTableWrap">
+        <table class="fund-table">
+          <thead>
+            <tr>
+              <th class="fund-table-month">日付</th>
+              <th><span class="th-dot" style="background:var(--fund-reserve)"></span>生活防衛資金</th>
+              <th><span class="th-dot" style="background:var(--fund-carryover)"></span>繰り越し</th>
+              <th class="fund-table-gap"></th>
+              <th><span class="th-dot" style="background:var(--fund-savings)"></span>積み立て</th>
+              <th>キャッシュ</th>
+              <th>総資産</th>
+            </tr>
+          </thead>
+          <tbody id="fundTableBody"></tbody>
+        </table>
+      </div>
       <div class="state-card" id="graphEmpty" hidden>
         <span class="glyph">📊</span>
         まだ資金に紐づく記録がありません。記録を追加する際に「出どころ」「出先」を選択すると、ここに月ごとの表が表示されます。
@@ -893,7 +919,6 @@
   let recurSelectedType = 'expense';
   let recurSubTab = 'items';
   let historyOverride = {};
-  let tableOverride = {};
 
   const $ = (id) => document.getElementById(id);
   const yen = (n) => '¥' + Math.round(Math.abs(n)).toLocaleString('ja-JP');
@@ -2118,51 +2143,34 @@
     return historical.concat(future);
   }
 
-  function groupFundTableRows(rows) {
-    const map = new Map();
-    const order = [];
-    for (const r of rows) {
-      const mk = r.date.slice(0, 7);
-      if (!map.has(mk)) { map.set(mk, []); order.push(mk); }
-      map.get(mk).push(r);
-    }
-    return order.map((mk) => {
-      const monthRows = map.get(mk).slice().sort((a, b) => a.date.localeCompare(b.date));
-      return { key: mk, rows: monthRows, isFuture: monthRows[monthRows.length - 1].isFuture };
-    });
-  }
+  function renderFundTable() {
+    const rows = computeFundTableRows();
+    $('graphEmpty').hidden = rows.length > 0;
+    $('fundTableWrap').hidden = rows.length === 0;
+    if (rows.length === 0) return;
 
-  function fundCellClass(val) {
-    if (val < 0) return 'num cell-critical';
-    if (val <= 100000) return 'num cell-warn';
-    return 'num';
-  }
-
-  function buildFundTableElement(rows) {
-    const scrollWrap = document.createElement('div');
-    scrollWrap.className = 'table-scroll';
-    const table = document.createElement('table');
-    table.className = 'fund-table';
-    table.innerHTML =
-      '<thead><tr>' +
-      '<th class="fund-table-month">日付</th>' +
-      '<th><span class="th-dot" style="background:var(--fund-reserve)"></span>生活防衛資金</th>' +
-      '<th><span class="th-dot" style="background:var(--fund-carryover)"></span>繰り越し</th>' +
-      '<th class="fund-table-gap"></th>' +
-      '<th><span class="th-dot" style="background:var(--fund-savings)"></span>積み立て</th>' +
-      '<th>キャッシュ</th>' +
-      '<th>総資産</th>' +
-      '</tr></thead>';
-    const tbody = document.createElement('tbody');
+    const tbody = $('fundTableBody');
+    tbody.innerHTML = '';
     const mkCell = (val) => {
       const td = document.createElement('td');
-      td.className = fundCellClass(val);
+      let cls = 'num';
+      if (val < 0) cls += ' cell-critical';
+      else if (val <= 100000) cls += ' cell-warn';
+      td.className = cls;
       td.textContent = (val < 0 ? '−' : '') + yen(val);
       return td;
     };
+    let prevMonthKey = null;
     for (const r of rows) {
+      const rowMonthKey = r.date.slice(0, 7);
+      const isBoundary = prevMonthKey !== null && rowMonthKey !== prevMonthKey;
+      prevMonthKey = rowMonthKey;
+
       const tr = document.createElement('tr');
-      if (r.isFuture) tr.className = 'upcoming-table-row';
+      const classes = [];
+      if (r.isFuture) classes.push('upcoming-table-row');
+      if (isBoundary) classes.push('month-boundary');
+      if (classes.length) tr.className = classes.join(' ');
 
       const dateTd = document.createElement('td');
       dateTd.className = 'fund-table-month';
@@ -2188,72 +2196,6 @@
       tr.appendChild(totalTd);
 
       tbody.appendChild(tr);
-    }
-    table.appendChild(tbody);
-    scrollWrap.appendChild(table);
-    return scrollWrap;
-  }
-
-  function buildFundMonthBox(group, isOpen) {
-    const wrap = document.createElement('div');
-    wrap.className = 'month-group' + (group.isFuture ? ' upcoming-group' : '') + (isOpen ? ' open' : '');
-
-    const head = document.createElement('button');
-    head.type = 'button';
-    head.className = 'month-head';
-    const titleSpan = document.createElement('span');
-    titleSpan.className = 'month-title';
-    titleSpan.appendChild(document.createTextNode(monthLabel(group.key) + (group.isFuture ? ' ' : '')));
-    if (group.isFuture) {
-      const badge = document.createElement('span');
-      badge.className = 'upcoming-badge';
-      badge.textContent = '予定';
-      titleSpan.appendChild(badge);
-    }
-    const peek = document.createElement('span');
-    peek.className = 'month-peek';
-    const latest = group.rows[group.rows.length - 1];
-    const totalSpan = document.createElement('span');
-    totalSpan.className = 'month-net num';
-    if (latest.total < 0) totalSpan.style.color = 'var(--expense)';
-    else if (latest.total <= 100000) totalSpan.style.color = 'var(--highlight)';
-    else totalSpan.style.color = 'var(--ink)';
-    totalSpan.textContent = (latest.total < 0 ? '−' : '') + yen(latest.total);
-    const chev = document.createElement('span');
-    chev.className = 'chevron';
-    chev.textContent = '▾';
-    peek.appendChild(totalSpan);
-    peek.appendChild(chev);
-    head.appendChild(titleSpan);
-    head.appendChild(peek);
-    head.addEventListener('click', () => {
-      tableOverride[group.key] = !isOpen;
-      renderFundTable();
-    });
-    wrap.appendChild(head);
-
-    if (isOpen) {
-      wrap.appendChild(buildFundTableElement(group.rows));
-    }
-    return wrap;
-  }
-
-  function renderFundTable() {
-    const rows = computeFundTableRows();
-    $('graphEmpty').hidden = rows.length > 0;
-    const container = $('fundTableContainer');
-    container.hidden = rows.length === 0;
-    container.innerHTML = '';
-    if (rows.length === 0) return;
-
-    const groups = groupFundTableRows(rows);
-    const firstHistorical = groups.find((g) => !g.isFuture);
-    const firstFuture = groups.find((g) => g.isFuture);
-
-    for (const group of groups) {
-      const defaultOpen = (firstHistorical && group.key === firstHistorical.key) || (firstFuture && group.key === firstFuture.key);
-      const isOpen = group.key in tableOverride ? tableOverride[group.key] : !!defaultOpen;
-      container.appendChild(buildFundMonthBox(group, isOpen));
     }
   }
 
