@@ -571,7 +571,8 @@
   .fund-table tbody td.fund-col-total { font-weight: 700; }
   .fund-table tbody tr.upcoming-table-row { color: var(--ink-faint); }
   .fund-table tbody tr.upcoming-table-row td.num { color: var(--ink-faint); }
-  .fund-table tbody tr td.num.cell-warn { color: var(--expense); font-weight: 700; }
+  .fund-table tbody tr td.num.cell-warn { color: var(--highlight); font-weight: 700; }
+  .fund-table tbody tr td.num.cell-critical { color: var(--expense); font-weight: 700; }
 
   #recurList {
     margin: 4px 20px 16px;
@@ -2043,7 +2044,10 @@
     const LOW_BALANCE_THRESHOLD = 100000;
     const mkCell = (val) => {
       const td = document.createElement('td');
-      td.className = 'num' + (val <= LOW_BALANCE_THRESHOLD ? ' cell-warn' : '');
+      let cls = 'num';
+      if (val < 0) cls += ' cell-critical';
+      else if (val <= LOW_BALANCE_THRESHOLD) cls += ' cell-warn';
+      td.className = cls;
       td.textContent = (val < 0 ? '−' : '') + yen(val);
       return td;
     };
