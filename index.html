@@ -1,0 +1,2177 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAxMDAgMTAwJz48dGV4dCB5PScuNzhlbScgZm9udC1zaXplPSc4NCc+8J+TkjwvdGV4dD48L3N2Zz4=" />
+<link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAxMDAgMTAwJz48dGV4dCB5PScuNzhlbScgZm9udC1zaXplPSc4NCc+8J+TkjwvdGV4dD48L3N2Zz4=" />
+<meta name="theme-color" content="#2f5d62" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="家計簿" />
+<meta name="mobile-web-app-capable" content="yes" />
+<title>週次家計簿</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+  :root {
+    --bg: #eef1e8;
+    --surface: #fdfcf7;
+    --surface-raised: #ffffff;
+    --ink: #1f2b24;
+    --ink-soft: #5b6a5f;
+    --ink-faint: #8a9690;
+    --line: #d9dcc9;
+    --accent: #2f5d62;
+    --accent-ink: #ffffff;
+    --accent-soft: #dceae7;
+    --income: #3f7a52;
+    --income-soft: #e3efe2;
+    --expense: #b8464a;
+    --expense-soft: #f8e4e1;
+    --highlight: #b5841f;
+    --highlight-soft: #f7ecd2;
+    --shadow: 0 10px 30px -12px rgba(31, 43, 36, 0.35);
+    --chip-0: #2f5d62; --chip-0-soft: #dceae7;
+    --chip-1: #b5841f; --chip-1-soft: #f7ecd2;
+    --chip-2: #a85a43; --chip-2-soft: #f3e0d8;
+    --chip-3: #6e4a7e; --chip-3-soft: #ece1f0;
+    --chip-4: #3f5c78; --chip-4-soft: #dfe6ec;
+    --chip-5: #637a2e; --chip-5-soft: #e6ecd6;
+    --chip-6: #9c3f63; --chip-6-soft: #f1dde6;
+    --chip-7: #74572f; --chip-7-soft: #ece3d2;
+    --fund-reserve: #2a78d6;
+    --fund-carryover: #eb6834;
+    --fund-savings: #1baf7a;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141a16;
+      --surface: #1c2420;
+      --surface-raised: #222b26;
+      --ink: #eceee5;
+      --ink-soft: #a3afa6;
+      --ink-faint: #717d76;
+      --line: #35403a;
+      --accent: #7ec0bc;
+      --accent-ink: #0f1a18;
+      --accent-soft: #263834;
+      --income: #7dcd93;
+      --income-soft: #223027;
+      --expense: #e2918f;
+      --expense-soft: #3a2422;
+      --highlight: #e3bb5f;
+      --highlight-soft: #3a311d;
+      --shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.55);
+      --chip-0: #7ec0bc; --chip-0-soft: #223634;
+      --chip-1: #e3bb5f; --chip-1-soft: #3a311d;
+      --chip-2: #d99479; --chip-2-soft: #3a2a21;
+      --chip-3: #c39fd4; --chip-3-soft: #322839;
+      --chip-4: #90b1d1; --chip-4-soft: #202c38;
+      --chip-5: #aec47e; --chip-5-soft: #2a3220;
+      --chip-6: #d98aae; --chip-6-soft: #35232c;
+      --chip-7: #c8a978; --chip-7-soft: #332b1e;
+      --fund-reserve: #3987e5;
+      --fund-carryover: #d95926;
+      --fund-savings: #199e70;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141a16;
+    --surface: #1c2420;
+    --surface-raised: #222b26;
+    --ink: #eceee5;
+    --ink-soft: #a3afa6;
+    --ink-faint: #717d76;
+    --line: #35403a;
+    --accent: #7ec0bc;
+    --accent-ink: #0f1a18;
+    --accent-soft: #263834;
+    --income: #7dcd93;
+    --income-soft: #223027;
+    --expense: #e2918f;
+    --expense-soft: #3a2422;
+    --highlight: #e3bb5f;
+    --highlight-soft: #3a311d;
+    --shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.55);
+    --chip-0: #7ec0bc; --chip-0-soft: #223634;
+    --chip-1: #e3bb5f; --chip-1-soft: #3a311d;
+    --chip-2: #d99479; --chip-2-soft: #3a2a21;
+    --chip-3: #c39fd4; --chip-3-soft: #322839;
+    --chip-4: #90b1d1; --chip-4-soft: #202c38;
+    --chip-5: #aec47e; --chip-5-soft: #2a3220;
+    --chip-6: #d98aae; --chip-6-soft: #35232c;
+    --chip-7: #c8a978; --chip-7-soft: #332b1e;
+    --fund-reserve: #3987e5;
+    --fund-carryover: #d95926;
+    --fund-savings: #199e70;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Zen Kaku Gothic New', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .num { font-family: 'JetBrains Mono', 'Hiragino Kaku Gothic ProN', monospace; font-variant-numeric: tabular-nums; }
+  .display { font-family: 'Shippori Mincho', 'Hiragino Mincho ProN', serif; }
+
+  .app {
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100vh;
+    padding-bottom: 96px;
+    position: relative;
+  }
+
+  .appbar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 18px 20px 12px;
+    background: var(--bg);
+  }
+  .appbar h1 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: 0.02em;
+  }
+  .icon-btn {
+    border: none;
+    background: transparent;
+    color: var(--ink-soft);
+    font-size: 1.3rem;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .icon-btn:hover { background: var(--surface-raised); color: var(--ink); }
+  .icon-btn:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .summary {
+    margin: 4px 20px 18px;
+    background: var(--surface-raised);
+    border-radius: 20px;
+    padding: 22px 22px 18px;
+    box-shadow: var(--shadow);
+  }
+  .summary-label { font-size: 0.78rem; color: var(--ink-soft); letter-spacing: 0.06em; }
+  .summary-balance {
+    font-size: 2.1rem;
+    font-weight: 700;
+    margin: 2px 0 16px;
+    text-wrap: balance;
+  }
+  .asset-breakdown { display: flex; flex-wrap: wrap; gap: 6px; margin: 2px 0 14px; }
+  .asset-chip {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--bg);
+    border-radius: 999px;
+    padding: 5px 10px;
+    font-size: 0.74rem;
+    color: var(--ink-soft);
+  }
+  .asset-chip .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .asset-chip .val { font-weight: 700; color: var(--ink); }
+  .summary-pills { display: flex; gap: 10px; }
+  .pill {
+    flex: 1;
+    border-radius: 14px;
+    padding: 10px 12px;
+    font-size: 0.85rem;
+  }
+  .pill .pill-label { color: var(--ink-soft); font-size: 0.72rem; display: block; margin-bottom: 2px; }
+  .pill .pill-value { font-size: 1.05rem; font-weight: 600; }
+  .pill.income { background: var(--income-soft); color: var(--income); }
+  .pill.expense { background: var(--expense-soft); color: var(--expense); }
+
+  .state-card {
+    margin: 40px 24px;
+    padding: 28px 22px;
+    background: var(--surface-raised);
+    border-radius: 18px;
+    text-align: center;
+    color: var(--ink-soft);
+    line-height: 1.7;
+    box-shadow: var(--shadow);
+  }
+  .state-card .glyph { font-size: 2rem; display: block; margin-bottom: 10px; }
+
+  .ledger { padding: 0 20px; display: flex; flex-direction: column; gap: 14px; }
+
+  .month-group {
+    background: var(--surface-raised);
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .month-head {
+    width: 100%;
+    border: none;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    cursor: pointer;
+    color: var(--ink);
+    text-align: left;
+  }
+  .month-head .month-title { font-weight: 700; font-size: 1rem; }
+  .month-head .month-peek { display: flex; align-items: center; gap: 10px; }
+  .month-head .month-net { font-size: 0.9rem; }
+  .month-head .chevron { color: var(--ink-faint); transition: transform 0.15s ease; font-size: 0.8rem; }
+  .month-group.open .chevron { transform: rotate(180deg); }
+
+  .month-entries { display: flex; flex-direction: column; }
+  .entry-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 18px;
+    border-top: 1px solid var(--line);
+    background: none;
+    border-left: none; border-right: none; border-bottom: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    color: var(--ink);
+  }
+  .entry-row:hover { background: var(--accent-soft); }
+  .entry-date { width: 40px; flex-shrink: 0; text-align: center; }
+  .entry-date .d { font-size: 1.05rem; font-weight: 700; line-height: 1; }
+  .entry-date .w { font-size: 0.68rem; color: var(--ink-faint); }
+  .entry-mid { flex: 1; min-width: 0; }
+  .entry-cat { display: flex; align-items: center; gap: 6px; font-size: 0.9rem; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .entry-note { font-size: 0.78rem; color: var(--ink-faint); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .entry-amount { flex-shrink: 0; font-size: 0.98rem; font-weight: 600; }
+  .entry-amount.income { color: var(--income); }
+  .entry-amount.expense { color: var(--expense); }
+
+  .month-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 18px;
+    background: var(--highlight-soft);
+    border-top: 2px solid var(--highlight);
+    color: var(--highlight);
+    font-weight: 700;
+  }
+  .month-total .label { font-size: 0.82rem; }
+  .month-total .breakdown { font-size: 0.78rem; font-weight: 500; color: var(--ink-soft); display: flex; gap: 8px; }
+
+  .month-empty-note { padding: 18px; color: var(--ink-faint); font-size: 0.85rem; text-align: center; border-top: 1px solid var(--line); }
+
+  .upcoming-group {
+    border: 1.5px dashed var(--accent);
+    box-shadow: none;
+  }
+  .upcoming-row { opacity: 0.8; cursor: default; }
+  .upcoming-row:hover { background: none; }
+  .upcoming-badge {
+    font-size: 0.64rem;
+    color: var(--accent);
+    background: var(--accent-soft);
+    padding: 1px 6px;
+    border-radius: 999px;
+  }
+  .upcoming-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 18px;
+    background: var(--accent-soft);
+    border-top: 2px dashed var(--accent);
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .upcoming-total .label { font-size: 0.82rem; }
+  .upcoming-total .breakdown { font-size: 0.78rem; font-weight: 500; color: var(--ink-soft); display: flex; gap: 8px; }
+
+  .fab {
+    position: fixed;
+    bottom: 28px;
+    right: calc(50% - 240px + 24px);
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    border: none;
+    background: var(--accent);
+    color: var(--accent-ink);
+    font-size: 1.8rem;
+    line-height: 1;
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    z-index: 20;
+  }
+  @media (max-width: 528px) {
+    .fab { right: 24px; }
+  }
+
+  .backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 14, 11, 0.45);
+    z-index: 30;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .sheet {
+    width: 100%;
+    max-width: 480px;
+    background: var(--surface);
+    border-radius: 22px 22px 0 0;
+    max-height: 88vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow);
+  }
+  .sheet-handle { width: 36px; height: 4px; background: var(--line); border-radius: 2px; margin: 10px auto 2px; }
+  .sheet-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 18px 6px;
+  }
+  .sheet-head h2 { font-size: 1.05rem; margin: 0; }
+  .sheet-body { padding: 4px 18px 18px; overflow-y: auto; }
+  .sheet-foot {
+    display: flex;
+    gap: 10px;
+    padding: 12px 18px calc(16px + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--line);
+  }
+
+  .field { margin-bottom: 16px; }
+  .field label { display: block; font-size: 0.78rem; color: var(--ink-soft); margin-bottom: 6px; letter-spacing: 0.02em; }
+  .field input[type="date"], .field input[type="text"] {
+    width: 100%;
+    padding: 11px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: var(--surface-raised);
+    color: var(--ink);
+    font-size: 0.95rem;
+    font-family: inherit;
+  }
+  .amount-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--surface-raised);
+    padding: 6px 12px;
+  }
+  .amount-wrap .yen { font-size: 1.1rem; color: var(--ink-soft); }
+  .amount-wrap input {
+    border: none;
+    background: transparent;
+    width: 100%;
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--ink);
+    padding: 6px 0;
+  }
+  .amount-wrap input:focus { outline: none; }
+
+  .check-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: var(--surface-raised);
+    cursor: pointer;
+    font-size: 0.88rem;
+    color: var(--ink);
+  }
+  .check-row input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    accent-color: var(--accent);
+  }
+
+  .type-toggle { display: flex; gap: 10px; }
+  .type-btn {
+    flex: 1;
+    padding: 11px;
+    border-radius: 10px;
+    border: 1.5px solid var(--line);
+    background: var(--surface-raised);
+    color: var(--ink-soft);
+    font-size: 0.92rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .type-btn.expense.active { border-color: var(--expense); background: var(--expense-soft); color: var(--expense); }
+  .type-btn.income.active { border-color: var(--income); background: var(--income-soft); color: var(--income); }
+
+  .chip-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+  .chip-row::-webkit-scrollbar { display: none; }
+  .chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+    padding: 8px 13px;
+    border-radius: 999px;
+    border: 1.5px solid var(--line);
+    background: var(--surface-raised);
+    color: var(--ink);
+    font-size: 0.85rem;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .chip.selected { border-color: currentColor; }
+  .chip.add { color: var(--ink-faint); border-style: dashed; }
+
+  .inline-add { display: flex; gap: 8px; margin-top: 10px; }
+  .inline-add input {
+    flex: 1;
+    padding: 9px 11px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: var(--surface-raised);
+    color: var(--ink);
+    font-size: 0.9rem;
+    font-family: inherit;
+  }
+
+  .btn {
+    flex: 1;
+    padding: 13px;
+    border-radius: 12px;
+    border: none;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .btn.primary { background: var(--accent); color: var(--accent-ink); }
+  .btn.primary:disabled { opacity: 0.45; cursor: not-allowed; }
+  .btn.ghost { background: var(--surface-raised); color: var(--ink-soft); border: 1px solid var(--line); }
+  .btn.danger { background: var(--expense-soft); color: var(--expense); flex: 0 0 auto; padding: 13px 16px; }
+  .btn.small { flex: 0 0 auto; padding: 8px 12px; font-size: 0.82rem; border-radius: 9px; }
+
+  .cat-list { display: flex; flex-direction: column; gap: 4px; }
+  .cat-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 2px;
+    border-bottom: 1px solid var(--line);
+  }
+  .cat-row input[type="text"] {
+    flex: 1;
+    border: none;
+    background: transparent;
+    color: var(--ink);
+    font-size: 0.92rem;
+    font-family: inherit;
+    padding: 4px 2px;
+  }
+  .cat-row input[type="text"]:focus { outline: none; border-bottom: 1px solid var(--accent); }
+  .cat-del {
+    border: none;
+    background: transparent;
+    color: var(--ink-faint);
+    font-size: 1rem;
+    cursor: pointer;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+  }
+  .cat-del:hover { background: var(--expense-soft); color: var(--expense); }
+
+  .appbar-actions { display: flex; gap: 2px; }
+
+  .tabbar {
+    display: flex;
+    gap: 4px;
+    margin: 0 20px 18px;
+    background: var(--surface-raised);
+    padding: 4px;
+    border-radius: 13px;
+    box-shadow: var(--shadow);
+  }
+  .tab {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 9px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    cursor: pointer;
+  }
+  .tab.active { background: var(--accent); color: var(--accent-ink); }
+
+  .table-scroll {
+    overflow-x: auto;
+    margin: 4px 20px 18px;
+    background: var(--surface-raised);
+    border-radius: 18px;
+    box-shadow: var(--shadow);
+  }
+  .fund-table {
+    width: 100%;
+    min-width: 520px;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+  .fund-table th, .fund-table td {
+    padding: 11px 13px;
+    text-align: right;
+    white-space: nowrap;
+  }
+  .fund-table thead th {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    border-bottom: 1px solid var(--line);
+  }
+  .fund-table .th-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; }
+  .fund-table .fund-table-month {
+    text-align: left;
+    font-weight: 700;
+    color: var(--ink);
+    position: sticky;
+    left: 0;
+    background: var(--surface-raised);
+    box-shadow: 1px 0 0 var(--line);
+    z-index: 1;
+  }
+  .fund-table th.fund-table-gap, .fund-table td.fund-table-gap { width: 18px; padding: 0; border: none; }
+  .fund-table tbody tr { border-bottom: 1px solid var(--line); }
+  .fund-table tbody tr:last-child { border-bottom: none; }
+  .fund-table tbody tr.month-gap-row { border-bottom: none; }
+  .fund-table tbody tr.month-gap-row td { padding: 0; border: none; height: 10px; background: transparent; box-shadow: none; }
+  .fund-table tbody td.num { color: var(--ink); }
+  .fund-table tbody td.fund-col-total { font-weight: 700; }
+  .fund-table tbody tr.upcoming-table-row { color: var(--ink-faint); }
+  .fund-table tbody tr.upcoming-table-row td.num { color: var(--ink-faint); }
+  .fund-table tbody tr td.num.cell-warn { color: var(--expense); font-weight: 700; }
+
+  .recur-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 2px;
+    border-bottom: 1px solid var(--line);
+    cursor: pointer;
+    background: none;
+    border-left: none; border-right: none; border-top: none;
+    width: 100%;
+    text-align: left;
+    color: var(--ink);
+  }
+  .recur-row:hover { background: var(--accent-soft); }
+  .recur-row .recur-main { flex: 1; min-width: 0; }
+  .recur-row .recur-cat { display: flex; align-items: center; gap: 6px; font-size: 0.9rem; }
+  .recur-row .recur-meta { font-size: 0.76rem; color: var(--ink-faint); margin-top: 2px; }
+  .recur-row .recur-amount { font-size: 0.92rem; font-weight: 600; flex-shrink: 0; }
+  .recur-badge { font-size: 0.7rem; color: var(--ink-faint); }
+
+  .field select {
+    width: 100%;
+    padding: 11px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: var(--surface-raised);
+    color: var(--ink);
+    font-size: 0.95rem;
+    font-family: inherit;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--ink);
+    color: var(--bg);
+    padding: 10px 18px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    z-index: 50;
+    box-shadow: var(--shadow);
+  }
+
+  [hidden] { display: none !important; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="appbar">
+    <h1 class="display">週次家計簿</h1>
+    <div class="appbar-actions" id="appbarActions" hidden>
+      <button class="icon-btn" id="recurBtn" aria-label="繰り返し項目">⟳</button>
+      <button class="icon-btn" id="settingsBtn" aria-label="カテゴリ設定">⚙</button>
+    </div>
+  </header>
+
+  <div id="mainView" hidden>
+    <div class="tabbar">
+      <button class="tab active" id="tabLedgerBtn" type="button">記録</button>
+      <button class="tab" id="tabPastBtn" type="button">過去</button>
+      <button class="tab" id="tabGraphBtn" type="button">表</button>
+    </div>
+
+    <div id="ledgerPane">
+      <section class="summary">
+        <span class="summary-label" id="assetSummaryLabel">今日時点の資産</span>
+        <div class="summary-balance num" id="totalBalance">¥0</div>
+        <div class="asset-breakdown" id="assetBreakdown"></div>
+        <div class="summary-pills">
+          <div class="pill income">
+            <span class="pill-label">今月の収入</span>
+            <span class="pill-value num" id="monthIncome">¥0</span>
+          </div>
+          <div class="pill expense">
+            <span class="pill-label">今月の支出</span>
+            <span class="pill-value num" id="monthExpense">¥0</span>
+          </div>
+        </div>
+      </section>
+
+      <main class="ledger" id="ledger"></main>
+    </div>
+
+    <div id="pastPane" hidden>
+      <main class="ledger" id="pastLedger"></main>
+    </div>
+
+    <div id="graphPane" hidden>
+      <div class="table-scroll" id="fundTableWrap">
+        <table class="fund-table">
+          <thead>
+            <tr>
+              <th class="fund-table-month">日付</th>
+              <th><span class="th-dot" style="background:var(--fund-reserve)"></span>生活防衛資金</th>
+              <th><span class="th-dot" style="background:var(--fund-carryover)"></span>繰り越し</th>
+              <th class="fund-table-gap"></th>
+              <th><span class="th-dot" style="background:var(--fund-savings)"></span>積み立て</th>
+              <th>キャッシュ</th>
+              <th>総資産</th>
+            </tr>
+          </thead>
+          <tbody id="fundTableBody"></tbody>
+        </table>
+      </div>
+      <div class="state-card" id="graphEmpty" hidden>
+        <span class="glyph">📊</span>
+        まだ資金に紐づく記録がありません。記録を追加する際に「出どころ」「出先」を選択すると、ここに月ごとの表が表示されます。
+      </div>
+    </div>
+  </div>
+
+  <button class="fab" id="addBtn" aria-label="記録を追加" hidden>+</button>
+
+  <div class="backdrop" id="entryBackdrop" hidden>
+    <div class="sheet" id="entrySheet" role="dialog" aria-modal="true">
+      <div class="sheet-handle"></div>
+      <div class="sheet-head">
+        <h2 id="entrySheetTitle">記録を追加</h2>
+        <button class="icon-btn" id="entryCloseBtn" aria-label="閉じる">×</button>
+      </div>
+      <div class="sheet-body">
+        <div class="field">
+          <label>日付</label>
+          <input type="date" id="entryDate">
+        </div>
+        <div class="field" id="repeatField">
+          <label class="check-row">
+            <input type="checkbox" id="entryRepeatCheck">
+            <span id="entryRepeatLabel">繰り返す</span>
+          </label>
+        </div>
+        <div class="field">
+          <label>種別</label>
+          <div class="type-toggle">
+            <button type="button" class="type-btn expense" id="typeExpenseBtn">支出</button>
+            <button type="button" class="type-btn income" id="typeIncomeBtn">収入</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>カテゴリ</label>
+          <div class="chip-row" id="categoryChips"></div>
+          <div class="inline-add" id="catInlineAdd" hidden>
+            <input type="text" id="catInlineInput" placeholder="新しいカテゴリ名" maxlength="20">
+            <button class="btn primary small" id="catInlineConfirm">追加</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>金額</label>
+          <div class="amount-wrap">
+            <span class="yen">¥</span>
+            <input type="number" id="entryAmount" inputmode="numeric" min="0" step="1" placeholder="0">
+          </div>
+        </div>
+        <div class="field">
+          <label>出どころ(任意)</label>
+          <div class="chip-row" id="sourceFundChips"></div>
+        </div>
+        <div class="field">
+          <label>出先(任意)</label>
+          <div class="chip-row" id="destFundChips"></div>
+        </div>
+        <div class="field">
+          <label>メモ(任意)</label>
+          <input type="text" id="entryNote" maxlength="60" placeholder="例: スーパー, 給与明細など">
+        </div>
+      </div>
+      <div class="sheet-foot">
+        <button class="btn danger" id="entryDeleteBtn" hidden>削除</button>
+        <button class="btn ghost" id="entryCancelBtn">キャンセル</button>
+        <button class="btn primary" id="entrySaveBtn" disabled>保存</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="backdrop" id="catBackdrop" hidden>
+    <div class="sheet" id="catSheet" role="dialog" aria-modal="true">
+      <div class="sheet-handle"></div>
+      <div class="sheet-head">
+        <h2>カテゴリ管理</h2>
+        <button class="icon-btn" id="catCloseBtn" aria-label="閉じる">×</button>
+      </div>
+      <div class="sheet-body">
+        <div class="cat-list" id="catList"></div>
+        <div class="inline-add" style="margin-top:14px;">
+          <input type="text" id="catManageInput" placeholder="新しいカテゴリ名" maxlength="20">
+          <button class="btn primary small" id="catManageConfirm">追加</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="backdrop" id="recurBackdrop" hidden>
+    <div class="sheet" id="recurSheet" role="dialog" aria-modal="true">
+      <div class="sheet-handle"></div>
+
+      <div id="recurListView">
+        <div class="sheet-head">
+          <h2>繰り返し項目</h2>
+          <button class="icon-btn" id="recurCloseBtn" aria-label="閉じる">×</button>
+        </div>
+        <div class="sheet-body">
+          <div class="cat-list" id="recurList"></div>
+        </div>
+        <div class="sheet-foot">
+          <button class="btn primary" id="recurAddOpenBtn">+ 新しい繰り返し項目</button>
+        </div>
+      </div>
+
+      <div id="recurFormView" hidden>
+        <div class="sheet-head">
+          <h2 id="recurFormTitle">繰り返し項目を追加</h2>
+          <button class="icon-btn" id="recurFormCloseBtn" aria-label="閉じる">×</button>
+        </div>
+        <div class="sheet-body">
+          <div class="field">
+            <label>種別</label>
+            <div class="type-toggle">
+              <button type="button" class="type-btn expense" id="recurTypeExpenseBtn">支出</button>
+              <button type="button" class="type-btn income" id="recurTypeIncomeBtn">収入</button>
+            </div>
+          </div>
+          <div class="field">
+            <label>カテゴリ</label>
+            <div class="chip-row" id="recurCategoryChips"></div>
+          </div>
+          <div class="field">
+            <label>金額(目安)</label>
+            <div class="amount-wrap">
+              <span class="yen">¥</span>
+              <input type="number" id="recurAmount" inputmode="numeric" min="0" step="1" placeholder="0">
+            </div>
+          </div>
+          <div class="field">
+            <label>毎月の日付</label>
+            <select id="recurDay"></select>
+          </div>
+          <div class="field">
+            <label>出どころ(任意)</label>
+            <div class="chip-row" id="recurSourceFundChips"></div>
+          </div>
+          <div class="field">
+            <label>出先(任意)</label>
+            <div class="chip-row" id="recurDestFundChips"></div>
+          </div>
+          <div class="field">
+            <label>メモ(任意)</label>
+            <input type="text" id="recurNote" maxlength="60" placeholder="例: 家賃, 給与明細など">
+          </div>
+        </div>
+        <div class="sheet-foot">
+          <button class="btn danger" id="recurDeleteBtn" hidden>削除</button>
+          <button class="btn ghost" id="recurFormCancelBtn">キャンセル</button>
+          <button class="btn primary" id="recurSaveBtn" disabled>保存</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const WD = ['日', '月', '火', '水', '木', '金', '土'];
+  const DEFAULT_CATEGORIES = [
+    { id: 'c_salary', name: '給料', colorIndex: 0 },
+    { id: 'c_extra', name: '臨時収入', colorIndex: 1 },
+    { id: 'c_food', name: '食費', colorIndex: 2 },
+    { id: 'c_rent', name: '家賃+スマホ', colorIndex: 4 },
+    { id: 'c_card', name: 'クレカ', colorIndex: 6 },
+    { id: 'c_adjust', name: '調整', colorIndex: 7 },
+    { id: 'c_reserve', name: '生活防衛資金', colorIndex: 3 },
+    { id: 'c_save', name: '積み立て', colorIndex: 5 },
+  ];
+  const FUNDS = [
+    { id: 'fund_reserve', name: '生活防衛資金', varName: '--fund-reserve' },
+    { id: 'fund_carryover', name: '繰り越し', varName: '--fund-carryover' },
+    { id: 'fund_savings', name: '積み立て', varName: '--fund-savings' },
+  ];
+
+  const STORAGE_PROFILE_KEY = 'kakeibo_profile_v1';
+  const STORAGE_ENTRIES_KEY = 'kakeibo_entries_v1';
+  const SEED_PROFILE = {
+    categories: [
+      { colorIndex: 0, id: 'c_salary', name: '給料' },
+      { colorIndex: 1, id: 'c_extra', name: '臨時収入' },
+      { colorIndex: 2, id: 'c_food', name: '食費' },
+      { colorIndex: 4, id: 'c_rent', name: '家賃+スマホ' },
+      { colorIndex: 6, id: 'c_card', name: 'クレカ' },
+      { colorIndex: 7, id: 'c_adjust', name: '調整' },
+      { colorIndex: 3, id: 'c_reserve', name: '生活防衛資金' },
+      { colorIndex: 5, id: 'c_save', name: '積み立て' },
+    ],
+    recurring: [
+      { amount: 300000, categoryId: 'c_salary', day: 15, destFundId: 'fund_carryover', id: 'r_murpnx1zbhyt', note: '', sourceFundId: null, type: 'income' },
+      { amount: 145000, categoryId: 'c_card', day: 10, destFundId: null, id: 'r_murpwzr341gb', note: '', sourceFundId: 'fund_carryover', type: 'expense' },
+      { amount: 30000, categoryId: 'c_reserve', day: 16, destFundId: 'fund_reserve', id: 'r_murqsyvkkl09', note: '', sourceFundId: 'fund_carryover', type: 'expense' },
+    ],
+  };
+  const SEED_ENTRIES = [
+    { id: '2imkz016htx7a9440f0p', date: '2026-10-27', type: 'expense', categoryId: 'c_card', amount: 28000, note: '', sourceFundId: 'fund_carryover', destFundId: 'fund_savings', recurringId: null, recurringMonth: null, createdAt: 1790990277365 },
+    { id: '4hyoxbi7er7iolu0hsja', date: '2026-10-03', type: 'income', categoryId: 'c_extra', amount: 250000, note: '', sourceFundId: null, destFundId: 'fund_carryover', recurringId: null, recurringMonth: null, createdAt: 1790990105550 },
+    { id: '51x2obfezvgw5s4wd4a7', date: '2026-10-15', type: 'income', categoryId: 'c_salary', amount: 300000, note: '', sourceFundId: null, destFundId: 'fund_carryover', recurringId: 'r_murpnx1zbhyt', recurringMonth: '2026-10', createdAt: 1790989278621 },
+    { id: 'ail3y6n08to7vyh733wd', date: '2026-10-03', type: 'income', categoryId: 'c_extra', amount: 42000, note: '', sourceFundId: null, destFundId: 'fund_savings', recurringId: null, recurringMonth: null, createdAt: 1790990130030 },
+    { id: 'c3deravyykz3uf19gfq7', date: '2026-10-03', type: 'income', categoryId: 'c_extra', amount: 290000, note: '', sourceFundId: null, destFundId: 'fund_reserve', recurringId: null, recurringMonth: null, createdAt: 1790990048623 },
+    { id: 'cy2cmje0if1e0if8qf21', date: '2026-10-10', type: 'expense', categoryId: 'c_card', amount: 451077, note: '', sourceFundId: 'fund_carryover', destFundId: null, recurringId: null, recurringMonth: null, createdAt: 1790989350255 },
+    { id: 'wteso6w1q7avvxuf9e0a', date: '2026-10-16', type: 'expense', categoryId: 'c_reserve', amount: 30000, note: '', sourceFundId: 'fund_carryover', destFundId: 'fund_reserve', recurringId: 'r_murqsyvkkl09', recurringMonth: '2026-10', createdAt: 1790989403883 },
+  ];
+
+  let profileRef = null, entriesCol = null;
+  let profile = { categories: DEFAULT_CATEGORIES, recurring: [] };
+  let entries = [];
+  let profileLoaded = false, entriesLoaded = false;
+  let pendingRecurring = new Set();
+  let monthOverride = {};
+  let upcomingOverride = {};
+  let editingEntryId = null;
+  let selectedCategoryId = null;
+  let selectedType = 'expense';
+  let selectedSourceFundId = null;
+  let selectedDestFundId = null;
+  let currentTab = 'ledger';
+
+  let editingRecurId = null;
+  let recurSelectedCategoryId = null;
+  let recurSelectedSourceFundId = null;
+  let recurSelectedDestFundId = null;
+  let recurSelectedType = 'expense';
+
+  const $ = (id) => document.getElementById(id);
+  const yen = (n) => '¥' + Math.round(Math.abs(n)).toLocaleString('ja-JP');
+  const todayStr = () => {
+    const d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  };
+  const monthKeyNow = () => todayStr().slice(0, 7);
+
+  function toast(msg) {
+    const t = document.createElement('div');
+    t.className = 'toast';
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 2400);
+  }
+
+  function catById(id) {
+    const list = profile.categories || DEFAULT_CATEGORIES;
+    return list.find((c) => c.id === id) || { id: null, name: '(削除済み)', colorIndex: 7 };
+  }
+  function fundById(id) {
+    return FUNDS.find((f) => f.id === id) || null;
+  }
+  // entries/templates saved before the source/destination split only had a single
+  // `fundId`, meaning "into this fund" for an expense or "out of this fund" for income.
+  function recordSourceFund(r) {
+    if (r.sourceFundId) return r.sourceFundId;
+    if (!r.destFundId && r.fundId && r.type === 'income') return r.fundId;
+    return null;
+  }
+  function recordDestFund(r) {
+    if (r.destFundId) return r.destFundId;
+    if (!r.sourceFundId && r.fundId && r.type === 'expense') return r.fundId;
+    return null;
+  }
+  function lastDayOfMonth(year, monthIndex0) {
+    return new Date(year, monthIndex0 + 1, 0).getDate();
+  }
+  function dayLabel(day) {
+    return day === 0 ? '月末' : day + '日';
+  }
+
+  // ---------- local storage persistence (no sign-in required) ----------
+  function persistProfile() {
+    try { localStorage.setItem(STORAGE_PROFILE_KEY, JSON.stringify(profile)); }
+    catch (e) { toast('保存に失敗しました(端末のストレージ容量を確認してください)'); }
+  }
+  function persistEntries() {
+    try { localStorage.setItem(STORAGE_ENTRIES_KEY, JSON.stringify(entries)); }
+    catch (e) { toast('保存に失敗しました(端末のストレージ容量を確認してください)'); }
+  }
+
+  function loadLocalData(allowSeed) {
+    let loadedProfile = null, loadedEntries = null;
+    try { const raw = localStorage.getItem(STORAGE_PROFILE_KEY); if (raw) loadedProfile = JSON.parse(raw); } catch (e) {}
+    try { const raw = localStorage.getItem(STORAGE_ENTRIES_KEY); if (raw) loadedEntries = JSON.parse(raw); } catch (e) {}
+
+    const hadProfile = loadedProfile && Array.isArray(loadedProfile.categories);
+    const hadEntries = Array.isArray(loadedEntries);
+    profile = hadProfile ? loadedProfile : (allowSeed ? SEED_PROFILE : { categories: DEFAULT_CATEGORIES, recurring: [] });
+    entries = hadEntries ? loadedEntries : (allowSeed ? SEED_ENTRIES : []);
+    if (!Array.isArray(profile.recurring)) profile.recurring = [];
+
+    if (allowSeed && (!hadProfile || !hadEntries)) {
+      persistProfile();
+      persistEntries();
+    }
+  }
+
+  // Shims with the same add/update/delete/set shape used throughout this file,
+  // backed by localStorage instead of the db capability, so every call site below
+  // (entry sheet, categories, recurring items) needed no further changes.
+  function makeLocalProfileRef() {
+    return {
+      set(data) {
+        return Promise.resolve().then(() => {
+          profile = data;
+          persistProfile();
+          renderAll();
+        });
+      },
+      update(data) {
+        return Promise.resolve().then(() => {
+          profile = Object.assign({}, profile, data);
+          persistProfile();
+          renderAll();
+        });
+      },
+    };
+  }
+  function makeLocalEntriesCollection() {
+    return {
+      add(data) {
+        return Promise.resolve().then(() => {
+          const id = 'e_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+          entries.push(Object.assign({ id }, data));
+          persistEntries();
+          renderAll();
+          return { id };
+        });
+      },
+      doc(id) {
+        return {
+          update(data) {
+            return Promise.resolve().then(() => {
+              const idx = entries.findIndex((e) => e.id === id);
+              if (idx === -1) throw new Error('not_found');
+              entries[idx] = Object.assign({}, entries[idx], data);
+              persistEntries();
+              renderAll();
+            });
+          },
+          delete() {
+            return Promise.resolve().then(() => {
+              entries = entries.filter((e) => e.id !== id);
+              persistEntries();
+              renderAll();
+            });
+          },
+        };
+      },
+    };
+  }
+
+  function renderAll() {
+    showMain();
+    renderSummary();
+    renderLedger();
+    renderCategoryChips();
+    renderCatManageList();
+    renderEntrySourceFundChips();
+    renderEntryDestFundChips();
+    renderRecurCategoryChips();
+    renderRecurSourceFundChips();
+    renderRecurDestFundChips();
+    renderRecurList();
+    if (currentTab === 'past') renderPastLedger();
+    if (currentTab === 'graph') renderFundTable();
+  }
+
+  // ---------- init ----------
+  async function init() {
+    loadLocalData(true);
+    profileRef = makeLocalProfileRef();
+    entriesCol = makeLocalEntriesCollection();
+    profileLoaded = true;
+    entriesLoaded = true;
+
+    materializeRecurring();
+    renderAll();
+
+    window.addEventListener('storage', (ev) => {
+      if (ev.key === STORAGE_PROFILE_KEY || ev.key === STORAGE_ENTRIES_KEY) {
+        loadLocalData(false);
+        renderAll();
+      }
+    });
+  }
+
+  function showMain() {
+    $('mainView').hidden = false;
+    $('addBtn').hidden = currentTab !== 'ledger';
+    $('appbarActions').hidden = false;
+  }
+
+  // ---------- summary ----------
+  function computeTodayAssets() {
+    const today = todayStr();
+    let reserve = 0, carryover = 0, savings = 0;
+    for (const e of entries) {
+      if (e.date > today) continue;
+      const src = recordSourceFund(e);
+      const dst = recordDestFund(e);
+      if (src === 'fund_reserve') reserve -= e.amount;
+      if (dst === 'fund_reserve') reserve += e.amount;
+      if (src === 'fund_carryover') carryover -= e.amount;
+      if (dst === 'fund_carryover') carryover += e.amount;
+      if (src === 'fund_savings') savings -= e.amount;
+      if (dst === 'fund_savings') savings += e.amount;
+    }
+    const cash = reserve + carryover;
+    const total = cash + savings;
+    return { reserve, carryover, savings, cash, total };
+  }
+
+  function renderSummary() {
+    let mIncome = 0, mExpense = 0;
+    const mk = monthKeyNow();
+    for (const e of entries) {
+      if (e.date.slice(0, 7) === mk) {
+        if (e.type === 'income') mIncome += e.amount; else mExpense += e.amount;
+      }
+    }
+    const assets = computeTodayAssets();
+    const now = new Date();
+    $('assetSummaryLabel').textContent = '今日時点(' + (now.getMonth() + 1) + '/' + now.getDate() + ')資産';
+    const balEl = $('totalBalance');
+    balEl.textContent = (assets.total < 0 ? '−' : '') + yen(assets.total);
+    $('monthIncome').textContent = yen(mIncome);
+    $('monthExpense').textContent = yen(mExpense);
+
+    const breakdown = $('assetBreakdown');
+    breakdown.innerHTML = '';
+    const items = [
+      { name: '生活防衛資金', value: assets.reserve, varName: '--fund-reserve' },
+      { name: '繰り越し', value: assets.carryover, varName: '--fund-carryover' },
+      { name: 'キャッシュ', value: assets.cash, varName: null },
+      { name: '積み立て', value: assets.savings, varName: '--fund-savings' },
+    ];
+    for (const item of items) {
+      const chip = document.createElement('div');
+      chip.className = 'asset-chip';
+      if (item.varName) {
+        const dot = document.createElement('span');
+        dot.className = 'dot';
+        dot.style.background = 'var(' + item.varName + ')';
+        chip.appendChild(dot);
+      }
+      const label = document.createElement('span');
+      label.textContent = item.name;
+      const val = document.createElement('span');
+      val.className = 'val num';
+      val.textContent = (item.value < 0 ? '−' : '') + yen(item.value);
+      chip.appendChild(label);
+      chip.appendChild(val);
+      breakdown.appendChild(chip);
+    }
+  }
+
+  // ---------- ledger ----------
+  function groupByMonth(list) {
+    const map = new Map();
+    for (const e of list) {
+      const mk = e.date.slice(0, 7);
+      if (!map.has(mk)) map.set(mk, []);
+      map.get(mk).push(e);
+    }
+    const keys = Array.from(map.keys()).sort().reverse();
+    return keys.map((k) => ({
+      key: k,
+      items: map.get(k).slice().sort((a, b) => a.date.localeCompare(b.date) || (a.createdAt - b.createdAt)),
+    }));
+  }
+
+  function monthLabel(key) {
+    const [y, m] = key.split('-');
+    return y + '年' + parseInt(m, 10) + '月';
+  }
+
+  function computeUpcoming() {
+    const templates = profile.recurring || [];
+    if (templates.length === 0) return [];
+    const now = new Date();
+    const existingKeys = new Set();
+    for (const e of entries) {
+      if (e.recurringId) existingKeys.add(e.recurringId + '|' + e.recurringMonth);
+    }
+    const results = [];
+    for (let offset = 1; offset <= 12; offset++) {
+      const d = new Date(now.getFullYear(), now.getMonth() + offset, 1);
+      const mk = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+      const lastDay = lastDayOfMonth(d.getFullYear(), d.getMonth());
+      for (const tmpl of templates) {
+        const scheduledDay = tmpl.day === 0 ? lastDay : Math.min(tmpl.day, lastDay);
+        const dateStr = mk + '-' + String(scheduledDay).padStart(2, '0');
+        const key = tmpl.id + '|' + mk;
+        if (existingKeys.has(key)) continue;
+        results.push({
+          date: dateStr,
+          type: tmpl.type,
+          categoryId: tmpl.categoryId,
+          amount: tmpl.amount,
+        });
+      }
+    }
+    results.sort((a, b) => a.date.localeCompare(b.date));
+    return results;
+  }
+
+  function groupUpcomingByMonth(upcoming) {
+    const map = new Map();
+    for (const item of upcoming) {
+      const mk = item.date.slice(0, 7);
+      if (!map.has(mk)) map.set(mk, []);
+      map.get(mk).push(item);
+    }
+    const keys = Array.from(map.keys()).sort();
+    return keys.map((k) => ({ key: k, items: map.get(k) }));
+  }
+
+  function buildUpcomingRow(item) {
+    const row = document.createElement('div');
+    row.className = 'entry-row upcoming-row';
+    const d = new Date(item.date + 'T00:00:00');
+
+    const dateBox = document.createElement('div');
+    dateBox.className = 'entry-date';
+    const dNum = document.createElement('div');
+    dNum.className = 'd num';
+    dNum.textContent = d.getDate();
+    const wLetter = document.createElement('div');
+    wLetter.className = 'w';
+    wLetter.textContent = WD[d.getDay()];
+    dateBox.appendChild(dNum);
+    dateBox.appendChild(wLetter);
+
+    const mid = document.createElement('div');
+    mid.className = 'entry-mid';
+    const catRow = document.createElement('div');
+    catRow.className = 'entry-cat';
+    const cat = catById(item.categoryId);
+    const dot = document.createElement('span');
+    dot.className = 'dot';
+    dot.style.background = 'var(--chip-' + (cat.colorIndex % 8) + ')';
+    const catName = document.createElement('span');
+    catName.textContent = cat.name;
+    catRow.appendChild(dot);
+    catRow.appendChild(catName);
+    mid.appendChild(catRow);
+
+    const amount = document.createElement('div');
+    amount.className = 'entry-amount num ' + item.type;
+    amount.textContent = (item.type === 'income' ? '+' : '−') + yen(item.amount);
+
+    row.appendChild(dateBox);
+    row.appendChild(mid);
+    row.appendChild(amount);
+    return row;
+  }
+
+  function buildUpcomingMonthBlock(group, isFirst) {
+    const isOpen = group.key in upcomingOverride ? upcomingOverride[group.key] : isFirst;
+    let income = 0, expense = 0;
+    for (const item of group.items) { if (item.type === 'income') income += item.amount; else expense += item.amount; }
+    const net = income - expense;
+
+    const wrap = document.createElement('div');
+    wrap.className = 'month-group upcoming-group' + (isOpen ? ' open' : '');
+
+    const head = document.createElement('button');
+    head.type = 'button';
+    head.className = 'month-head';
+    const titleSpan = document.createElement('span');
+    titleSpan.className = 'month-title';
+    titleSpan.appendChild(document.createTextNode(monthLabel(group.key) + ' '));
+    const badge = document.createElement('span');
+    badge.className = 'upcoming-badge';
+    badge.textContent = '予定';
+    titleSpan.appendChild(badge);
+    const peek = document.createElement('span');
+    peek.className = 'month-peek';
+    const netSpan = document.createElement('span');
+    netSpan.className = 'month-net num';
+    netSpan.style.color = net >= 0 ? 'var(--income)' : 'var(--expense)';
+    netSpan.textContent = (net < 0 ? '−' : '+') + yen(net);
+    const chev = document.createElement('span');
+    chev.className = 'chevron';
+    chev.textContent = '▾';
+    peek.appendChild(netSpan);
+    peek.appendChild(chev);
+    head.appendChild(titleSpan);
+    head.appendChild(peek);
+    head.addEventListener('click', () => {
+      upcomingOverride[group.key] = !isOpen;
+      renderLedger();
+    });
+    wrap.appendChild(head);
+
+    if (isOpen) {
+      const entriesWrap = document.createElement('div');
+      entriesWrap.className = 'month-entries';
+      for (const item of group.items) {
+        entriesWrap.appendChild(buildUpcomingRow(item));
+      }
+      wrap.appendChild(entriesWrap);
+
+      const totalRow = document.createElement('div');
+      totalRow.className = 'upcoming-total';
+      const label = document.createElement('span');
+      label.className = 'label';
+      label.textContent = monthLabel(group.key) + ' 予定合計';
+      const breakdown = document.createElement('span');
+      breakdown.className = 'breakdown num';
+      breakdown.innerHTML = '<span>収入 ' + yen(income) + '</span><span>支出 ' + yen(expense) + '</span>';
+      const netTotal = document.createElement('span');
+      netTotal.className = 'num';
+      netTotal.textContent = (net < 0 ? '−' : '+') + yen(net);
+      totalRow.appendChild(label);
+      totalRow.appendChild(breakdown);
+      totalRow.appendChild(netTotal);
+      wrap.appendChild(totalRow);
+    }
+    return wrap;
+  }
+
+  function buildCurrentMonthBlock(group) {
+    let income = 0, expense = 0;
+    for (const e of group.items) { if (e.type === 'income') income += e.amount; else expense += e.amount; }
+    const net = income - expense;
+
+    const wrap = document.createElement('div');
+    wrap.className = 'month-group open';
+
+    const head = document.createElement('div');
+    head.className = 'month-head';
+    head.style.cursor = 'default';
+    const titleSpan = document.createElement('span');
+    titleSpan.className = 'month-title';
+    titleSpan.textContent = monthLabel(group.key) + '(今月)';
+    const peek = document.createElement('span');
+    peek.className = 'month-peek';
+    const netSpan = document.createElement('span');
+    netSpan.className = 'month-net num';
+    netSpan.style.color = net >= 0 ? 'var(--income)' : 'var(--expense)';
+    netSpan.textContent = (net < 0 ? '−' : '+') + yen(net);
+    peek.appendChild(netSpan);
+    head.appendChild(titleSpan);
+    head.appendChild(peek);
+    wrap.appendChild(head);
+
+    const entriesWrap = document.createElement('div');
+    entriesWrap.className = 'month-entries';
+    if (group.items.length === 0) {
+      const note = document.createElement('div');
+      note.className = 'month-empty-note';
+      note.textContent = 'この月の記録はまだありません。右下の + から追加しましょう。';
+      entriesWrap.appendChild(note);
+    } else {
+      for (const e of group.items) {
+        entriesWrap.appendChild(buildEntryRow(e));
+      }
+    }
+    wrap.appendChild(entriesWrap);
+
+    if (group.items.length > 0) {
+      const totalRow = document.createElement('div');
+      totalRow.className = 'month-total';
+      const label = document.createElement('span');
+      label.className = 'label';
+      label.textContent = monthLabel(group.key) + ' 合計';
+      const breakdown = document.createElement('span');
+      breakdown.className = 'breakdown num';
+      breakdown.innerHTML = '<span>収入 ' + yen(income) + '</span><span>支出 ' + yen(expense) + '</span>';
+      const netTotal = document.createElement('span');
+      netTotal.className = 'num';
+      netTotal.textContent = (net < 0 ? '−' : '+') + yen(net);
+      totalRow.appendChild(label);
+      totalRow.appendChild(breakdown);
+      totalRow.appendChild(netTotal);
+      wrap.appendChild(totalRow);
+    }
+    return wrap;
+  }
+
+  function buildPastMonthBlock(group, isOpen) {
+    let income = 0, expense = 0;
+    for (const e of group.items) { if (e.type === 'income') income += e.amount; else expense += e.amount; }
+    const net = income - expense;
+
+    const wrap = document.createElement('div');
+    wrap.className = 'month-group' + (isOpen ? ' open' : '');
+
+    const head = document.createElement('button');
+    head.type = 'button';
+    head.className = 'month-head';
+    const titleSpan = document.createElement('span');
+    titleSpan.className = 'month-title';
+    titleSpan.textContent = monthLabel(group.key);
+    const peek = document.createElement('span');
+    peek.className = 'month-peek';
+    const netSpan = document.createElement('span');
+    netSpan.className = 'month-net num';
+    netSpan.style.color = net >= 0 ? 'var(--income)' : 'var(--expense)';
+    netSpan.textContent = (net < 0 ? '−' : '+') + yen(net);
+    const chev = document.createElement('span');
+    chev.className = 'chevron';
+    chev.textContent = '▾';
+    peek.appendChild(netSpan);
+    peek.appendChild(chev);
+    head.appendChild(titleSpan);
+    head.appendChild(peek);
+    head.addEventListener('click', () => {
+      monthOverride[group.key] = !isOpen;
+      renderPastLedger();
+    });
+    wrap.appendChild(head);
+
+    if (isOpen) {
+      const entriesWrap = document.createElement('div');
+      entriesWrap.className = 'month-entries';
+      for (const e of group.items) {
+        entriesWrap.appendChild(buildEntryRow(e));
+      }
+      wrap.appendChild(entriesWrap);
+
+      const totalRow = document.createElement('div');
+      totalRow.className = 'month-total';
+      const label = document.createElement('span');
+      label.className = 'label';
+      label.textContent = monthLabel(group.key) + ' 合計';
+      const breakdown = document.createElement('span');
+      breakdown.className = 'breakdown num';
+      breakdown.innerHTML = '<span>収入 ' + yen(income) + '</span><span>支出 ' + yen(expense) + '</span>';
+      const netTotal = document.createElement('span');
+      netTotal.className = 'num';
+      netTotal.textContent = (net < 0 ? '−' : '+') + yen(net);
+      totalRow.appendChild(label);
+      totalRow.appendChild(breakdown);
+      totalRow.appendChild(netTotal);
+      wrap.appendChild(totalRow);
+    }
+    return wrap;
+  }
+
+  function renderLedger() {
+    const container = $('ledger');
+    container.innerHTML = '';
+    const todayKey = monthKeyNow();
+    const groups = groupByMonth(entries);
+    const currentGroup = groups.find((g) => g.key === todayKey) || { key: todayKey, items: [] };
+    const upcomingGroups = groupUpcomingByMonth(computeUpcoming());
+    const firstUpcomingKey = upcomingGroups.length ? upcomingGroups[0].key : null;
+
+    container.appendChild(buildCurrentMonthBlock(currentGroup));
+    for (const ug of upcomingGroups) {
+      container.appendChild(buildUpcomingMonthBlock(ug, ug.key === firstUpcomingKey));
+    }
+  }
+
+  function renderPastLedger() {
+    const container = $('pastLedger');
+    container.innerHTML = '';
+    const todayKey = monthKeyNow();
+    const pastGroups = groupByMonth(entries).filter((g) => g.key !== todayKey);
+
+    if (pastGroups.length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'state-card';
+      empty.innerHTML = '<span class="glyph">🗂️</span>過去の記録はまだありません。';
+      container.appendChild(empty);
+      return;
+    }
+
+    const newestPastKey = pastGroups[0].key;
+    for (const group of pastGroups) {
+      const isOpen = group.key in monthOverride ? monthOverride[group.key] : group.key === newestPastKey;
+      container.appendChild(buildPastMonthBlock(group, isOpen));
+    }
+  }
+
+  function buildEntryRow(e) {
+    const row = document.createElement('button');
+    row.type = 'button';
+    row.className = 'entry-row';
+    const d = new Date(e.date + 'T00:00:00');
+
+    const dateBox = document.createElement('div');
+    dateBox.className = 'entry-date';
+    const dNum = document.createElement('div');
+    dNum.className = 'd num';
+    dNum.textContent = d.getDate();
+    const wLetter = document.createElement('div');
+    wLetter.className = 'w';
+    wLetter.textContent = WD[d.getDay()];
+    dateBox.appendChild(dNum);
+    dateBox.appendChild(wLetter);
+
+    const mid = document.createElement('div');
+    mid.className = 'entry-mid';
+    const catRow = document.createElement('div');
+    catRow.className = 'entry-cat';
+    const cat = catById(e.categoryId);
+    const dot = document.createElement('span');
+    dot.className = 'dot';
+    dot.style.background = 'var(--chip-' + (cat.colorIndex % 8) + ')';
+    const catName = document.createElement('span');
+    catName.textContent = cat.name;
+    catRow.appendChild(dot);
+    catRow.appendChild(catName);
+    if (e.recurringId) {
+      const badge = document.createElement('span');
+      badge.className = 'recur-badge';
+      badge.textContent = '⟳';
+      badge.setAttribute('aria-label', '繰り返し項目から自動追加');
+      catRow.appendChild(badge);
+    }
+    mid.appendChild(catRow);
+    const srcFund = fundById(recordSourceFund(e));
+    const dstFund = fundById(recordDestFund(e));
+    if (srcFund || dstFund) {
+      const fundLine = document.createElement('div');
+      fundLine.className = 'entry-note';
+      if (srcFund) {
+        const sdot = document.createElement('span');
+        sdot.className = 'dot';
+        sdot.style.background = 'var(' + srcFund.varName + ')';
+        sdot.style.marginRight = '4px';
+        fundLine.appendChild(sdot);
+        fundLine.appendChild(document.createTextNode(srcFund.name));
+      }
+      if (srcFund && dstFund) fundLine.appendChild(document.createTextNode(' → '));
+      if (dstFund) {
+        const ddot = document.createElement('span');
+        ddot.className = 'dot';
+        ddot.style.background = 'var(' + dstFund.varName + ')';
+        ddot.style.marginRight = '4px';
+        fundLine.appendChild(ddot);
+        fundLine.appendChild(document.createTextNode(dstFund.name));
+      }
+      if (!srcFund && dstFund) fundLine.appendChild(document.createTextNode('へ'));
+      if (srcFund && !dstFund) fundLine.appendChild(document.createTextNode('から'));
+      mid.appendChild(fundLine);
+    }
+    if (e.note) {
+      const note = document.createElement('div');
+      note.className = 'entry-note';
+      note.textContent = e.note;
+      mid.appendChild(note);
+    }
+
+    const amount = document.createElement('div');
+    amount.className = 'entry-amount num ' + e.type;
+    amount.textContent = (e.type === 'income' ? '+' : '−') + yen(e.amount);
+
+    row.appendChild(dateBox);
+    row.appendChild(mid);
+    row.appendChild(amount);
+    row.addEventListener('click', () => openEntrySheet(e));
+    return row;
+  }
+
+  // ---------- category chips (entry sheet) ----------
+  function renderCategoryChips() {
+    const row = $('categoryChips');
+    row.innerHTML = '';
+    const list = profile.categories || DEFAULT_CATEGORIES;
+    for (const cat of list) {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'chip' + (selectedCategoryId === cat.id ? ' selected' : '');
+      chip.style.color = 'var(--chip-' + (cat.colorIndex % 8) + ')';
+      if (selectedCategoryId === cat.id) chip.style.background = 'var(--chip-' + (cat.colorIndex % 8) + '-soft)';
+      const dot = document.createElement('span');
+      dot.className = 'dot';
+      dot.style.background = 'var(--chip-' + (cat.colorIndex % 8) + ')';
+      const name = document.createElement('span');
+      name.style.color = 'var(--ink)';
+      name.textContent = cat.name;
+      chip.appendChild(dot);
+      chip.appendChild(name);
+      chip.addEventListener('click', () => {
+        selectedCategoryId = cat.id;
+        renderCategoryChips();
+        validateEntryForm();
+      });
+      row.appendChild(chip);
+    }
+    const addChip = document.createElement('button');
+    addChip.type = 'button';
+    addChip.className = 'chip add';
+    addChip.textContent = '+ 新規';
+    addChip.addEventListener('click', () => { $('catInlineAdd').hidden = false; $('catInlineInput').focus(); });
+    row.appendChild(addChip);
+  }
+
+  async function addCategory(name, fromInline) {
+    name = (name || '').trim();
+    if (!name) return null;
+    const list = profile.categories || DEFAULT_CATEGORIES;
+    const id = 'c_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    const newCat = { id, name, colorIndex: list.length % 8 };
+    const updated = list.concat([newCat]);
+    profile = Object.assign({}, profile, { categories: updated });
+    try {
+      await profileRef.update({ categories: updated });
+    } catch (e) {
+      toast('カテゴリの追加に失敗しました');
+      return null;
+    }
+    renderCategoryChips();
+    renderCatManageList();
+    return newCat;
+  }
+
+  $('catInlineConfirm').addEventListener('click', async () => {
+    const val = $('catInlineInput').value;
+    const cat = await addCategory(val);
+    if (cat) {
+      selectedCategoryId = cat.id;
+      $('catInlineInput').value = '';
+      $('catInlineAdd').hidden = true;
+      renderCategoryChips();
+      validateEntryForm();
+    }
+  });
+
+  function renderRecurCategoryChips() {
+    const row = $('recurCategoryChips');
+    row.innerHTML = '';
+    const list = profile.categories || DEFAULT_CATEGORIES;
+    for (const cat of list) {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'chip' + (recurSelectedCategoryId === cat.id ? ' selected' : '');
+      chip.style.color = 'var(--chip-' + (cat.colorIndex % 8) + ')';
+      if (recurSelectedCategoryId === cat.id) chip.style.background = 'var(--chip-' + (cat.colorIndex % 8) + '-soft)';
+      const dot = document.createElement('span');
+      dot.className = 'dot';
+      dot.style.background = 'var(--chip-' + (cat.colorIndex % 8) + ')';
+      const label = document.createElement('span');
+      label.style.color = 'var(--ink)';
+      label.textContent = cat.name;
+      chip.appendChild(dot);
+      chip.appendChild(label);
+      chip.addEventListener('click', () => {
+        recurSelectedCategoryId = cat.id;
+        renderRecurCategoryChips();
+        validateRecurForm();
+      });
+      row.appendChild(chip);
+    }
+  }
+
+  // ---------- fund chips (shared by entry sheet & recurring form) ----------
+  function buildFundChipRow(container, selectedId, onSelect) {
+    container.innerHTML = '';
+    const noneChip = document.createElement('button');
+    noneChip.type = 'button';
+    noneChip.className = 'chip' + (!selectedId ? ' selected' : '');
+    if (!selectedId) { noneChip.style.borderColor = 'var(--ink-faint)'; }
+    noneChip.textContent = 'なし';
+    noneChip.addEventListener('click', () => onSelect(null));
+    container.appendChild(noneChip);
+    for (const fund of FUNDS) {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'chip' + (selectedId === fund.id ? ' selected' : '');
+      chip.style.color = 'var(' + fund.varName + ')';
+      if (selectedId === fund.id) chip.style.background = 'color-mix(in srgb, var(' + fund.varName + ') 14%, transparent)';
+      const dot = document.createElement('span');
+      dot.className = 'dot';
+      dot.style.background = 'var(' + fund.varName + ')';
+      const label = document.createElement('span');
+      label.style.color = 'var(--ink)';
+      label.textContent = fund.name;
+      chip.appendChild(dot);
+      chip.appendChild(label);
+      chip.addEventListener('click', () => onSelect(fund.id));
+      container.appendChild(chip);
+    }
+  }
+  function renderEntrySourceFundChips() {
+    buildFundChipRow($('sourceFundChips'), selectedSourceFundId, (id) => { selectedSourceFundId = id; renderEntrySourceFundChips(); });
+  }
+  function renderEntryDestFundChips() {
+    buildFundChipRow($('destFundChips'), selectedDestFundId, (id) => { selectedDestFundId = id; renderEntryDestFundChips(); });
+  }
+  function renderRecurSourceFundChips() {
+    buildFundChipRow($('recurSourceFundChips'), recurSelectedSourceFundId, (id) => { recurSelectedSourceFundId = id; renderRecurSourceFundChips(); });
+  }
+  function renderRecurDestFundChips() {
+    buildFundChipRow($('recurDestFundChips'), recurSelectedDestFundId, (id) => { recurSelectedDestFundId = id; renderRecurDestFundChips(); });
+  }
+
+  // ---------- category management sheet ----------
+  function renderCatManageList() {
+    const list = $('catList');
+    list.innerHTML = '';
+    const cats = profile.categories || DEFAULT_CATEGORIES;
+    for (const cat of cats) {
+      const row = document.createElement('div');
+      row.className = 'cat-row';
+      const dot = document.createElement('span');
+      dot.className = 'dot';
+      dot.style.background = 'var(--chip-' + (cat.colorIndex % 8) + ')';
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.value = cat.name;
+      input.maxLength = 20;
+      input.addEventListener('change', async () => {
+        const updated = cats.map((c) => (c.id === cat.id ? Object.assign({}, c, { name: input.value.trim() || c.name }) : c));
+        profile = Object.assign({}, profile, { categories: updated });
+        try { await profileRef.update({ categories: updated }); } catch (e) { toast('更新に失敗しました'); }
+        renderCategoryChips();
+      });
+      const del = document.createElement('button');
+      del.className = 'cat-del';
+      del.textContent = '×';
+      del.setAttribute('aria-label', cat.name + 'を削除');
+      del.addEventListener('click', async () => {
+        const updated = cats.filter((c) => c.id !== cat.id);
+        profile = Object.assign({}, profile, { categories: updated });
+        try { await profileRef.update({ categories: updated }); } catch (e) { toast('削除に失敗しました'); }
+        renderCategoryChips();
+        renderCatManageList();
+      });
+      row.appendChild(dot);
+      row.appendChild(input);
+      row.appendChild(del);
+      list.appendChild(row);
+    }
+  }
+
+  $('catManageConfirm').addEventListener('click', async () => {
+    const val = $('catManageInput').value;
+    const cat = await addCategory(val);
+    if (cat) $('catManageInput').value = '';
+  });
+
+  // ---------- entry sheet ----------
+  function setType(type) {
+    selectedType = type;
+    $('typeExpenseBtn').classList.toggle('active', type === 'expense');
+    $('typeIncomeBtn').classList.toggle('active', type === 'income');
+  }
+  $('typeExpenseBtn').addEventListener('click', () => setType('expense'));
+  $('typeIncomeBtn').addEventListener('click', () => setType('income'));
+
+  function validateEntryForm() {
+    const amount = parseFloat($('entryAmount').value);
+    const ok = $('entryDate').value && selectedCategoryId && amount > 0;
+    $('entrySaveBtn').disabled = !ok;
+  }
+  $('entryAmount').addEventListener('input', validateEntryForm);
+  $('entryDate').addEventListener('change', () => { validateEntryForm(); updateRepeatLabel(); });
+
+  function updateRepeatLabel() {
+    const val = $('entryDate').value;
+    if (!val) { $('entryRepeatLabel').textContent = '繰り返す'; return; }
+    const d = new Date(val + 'T00:00:00');
+    $('entryRepeatLabel').textContent = '毎月' + d.getDate() + '日に繰り返す';
+  }
+
+  function openEntrySheet(entry) {
+    editingEntryId = entry ? entry.id : null;
+    $('entrySheetTitle').textContent = entry ? '記録を編集' : '記録を追加';
+    $('entryDeleteBtn').hidden = !entry;
+    $('entryDate').value = entry ? entry.date : todayStr();
+    setType(entry ? entry.type : 'expense');
+    selectedCategoryId = entry ? entry.categoryId : null;
+    selectedSourceFundId = entry ? recordSourceFund(entry) : null;
+    selectedDestFundId = entry ? recordDestFund(entry) : null;
+    $('entryAmount').value = entry ? entry.amount : '';
+    $('entryNote').value = entry ? (entry.note || '') : '';
+    $('catInlineAdd').hidden = true;
+    $('catInlineInput').value = '';
+    renderCategoryChips();
+    renderEntrySourceFundChips();
+    renderEntryDestFundChips();
+
+    $('repeatField').hidden = !!(entry && entry.recurringId);
+    $('entryRepeatCheck').checked = false;
+    updateRepeatLabel();
+
+    validateEntryForm();
+    $('entryBackdrop').hidden = false;
+  }
+  function closeEntrySheet() { $('entryBackdrop').hidden = true; }
+
+  $('addBtn').addEventListener('click', () => openEntrySheet(null));
+  $('entryCloseBtn').addEventListener('click', closeEntrySheet);
+  $('entryCancelBtn').addEventListener('click', closeEntrySheet);
+  $('entryBackdrop').addEventListener('click', (ev) => { if (ev.target === $('entryBackdrop')) closeEntrySheet(); });
+
+  $('entrySaveBtn').addEventListener('click', async () => {
+    const data = {
+      date: $('entryDate').value,
+      type: selectedType,
+      categoryId: selectedCategoryId,
+      amount: Math.round(parseFloat($('entryAmount').value)),
+      note: $('entryNote').value.trim(),
+      sourceFundId: selectedSourceFundId || null,
+      destFundId: selectedDestFundId || null,
+    };
+    const editingEntry = editingEntryId ? entries.find((e) => e.id === editingEntryId) : null;
+    const alreadyRecurring = !!(editingEntry && editingEntry.recurringId);
+    const wantsRepeat = !$('repeatField').hidden && $('entryRepeatCheck').checked && !alreadyRecurring;
+
+    $('entrySaveBtn').disabled = true;
+    try {
+      let recurringId = null, recurringMonth = null;
+      if (wantsRepeat) {
+        const day = new Date(data.date + 'T00:00:00').getDate();
+        const tmpl = {
+          id: 'r_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+          type: data.type,
+          categoryId: data.categoryId,
+          amount: data.amount,
+          day: day,
+          sourceFundId: data.sourceFundId,
+          destFundId: data.destFundId,
+          note: data.note,
+        };
+        const updatedRecurring = (profile.recurring || []).concat([tmpl]);
+        profile = Object.assign({}, profile, { recurring: updatedRecurring });
+        await profileRef.update({ recurring: updatedRecurring });
+        recurringId = tmpl.id;
+        recurringMonth = data.date.slice(0, 7);
+      }
+
+      if (editingEntryId) {
+        const updateData = recurringId ? Object.assign({}, data, { recurringId, recurringMonth }) : data;
+        await entriesCol.doc(editingEntryId).update(updateData);
+      } else {
+        await entriesCol.add(Object.assign({ createdAt: Date.now(), recurringId: recurringId, recurringMonth: recurringMonth }, data));
+      }
+      if (wantsRepeat) toast('毎月' + new Date(data.date + 'T00:00:00').getDate() + '日の繰り返し項目として登録しました');
+      closeEntrySheet();
+    } catch (e) {
+      toast('保存できませんでした');
+      $('entrySaveBtn').disabled = false;
+    }
+  });
+
+  $('entryDeleteBtn').addEventListener('click', async () => {
+    if (!editingEntryId) return;
+    try {
+      await entriesCol.doc(editingEntryId).delete();
+      closeEntrySheet();
+    } catch (e) {
+      toast('削除できませんでした');
+    }
+  });
+
+  // ---------- settings / category sheet ----------
+  $('settingsBtn').addEventListener('click', () => { $('catBackdrop').hidden = false; });
+  $('catCloseBtn').addEventListener('click', () => { $('catBackdrop').hidden = true; });
+  $('catBackdrop').addEventListener('click', (ev) => { if (ev.target === $('catBackdrop')) $('catBackdrop').hidden = true; });
+
+  // ---------- recurring items ----------
+  function recurSetType(type) {
+    recurSelectedType = type;
+    $('recurTypeExpenseBtn').classList.toggle('active', type === 'expense');
+    $('recurTypeIncomeBtn').classList.toggle('active', type === 'income');
+  }
+  $('recurTypeExpenseBtn').addEventListener('click', () => recurSetType('expense'));
+  $('recurTypeIncomeBtn').addEventListener('click', () => recurSetType('income'));
+
+  (function populateRecurDaySelect() {
+    const sel = $('recurDay');
+    for (let d = 1; d <= 31; d++) {
+      const opt = document.createElement('option');
+      opt.value = String(d);
+      opt.textContent = d + '日';
+      sel.appendChild(opt);
+    }
+    const monthEnd = document.createElement('option');
+    monthEnd.value = '0';
+    monthEnd.textContent = '月末';
+    sel.appendChild(monthEnd);
+  })();
+
+  function validateRecurForm() {
+    const amount = parseFloat($('recurAmount').value);
+    $('recurSaveBtn').disabled = !(recurSelectedCategoryId && amount > 0);
+  }
+  $('recurAmount').addEventListener('input', validateRecurForm);
+
+  function renderRecurList() {
+    const list = $('recurList');
+    list.innerHTML = '';
+    const templates = profile.recurring || [];
+    if (templates.length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'state-card';
+      empty.style.margin = '16px 0';
+      const glyph = document.createElement('span');
+      glyph.className = 'glyph';
+      glyph.textContent = '⟳';
+      empty.appendChild(glyph);
+      empty.appendChild(document.createTextNode('毎月決まった日に発生する収支を登録すると、自動で記録に追加されます。'));
+      list.appendChild(empty);
+      return;
+    }
+    for (const tmpl of templates) {
+      const cat = catById(tmpl.categoryId);
+      const srcFund = fundById(recordSourceFund(tmpl));
+      const dstFund = fundById(recordDestFund(tmpl));
+      const row = document.createElement('button');
+      row.type = 'button';
+      row.className = 'recur-row';
+
+      const dot = document.createElement('span');
+      dot.className = 'dot';
+      dot.style.background = 'var(--chip-' + (cat.colorIndex % 8) + ')';
+
+      const main = document.createElement('div');
+      main.className = 'recur-main';
+      const catLine = document.createElement('div');
+      catLine.className = 'recur-cat';
+      const catName = document.createElement('span');
+      catName.textContent = cat.name;
+      catLine.appendChild(dot);
+      catLine.appendChild(catName);
+      main.appendChild(catLine);
+      const meta = document.createElement('div');
+      meta.className = 'recur-meta';
+      let fundText = '';
+      if (srcFund && dstFund) fundText = ' ・ ' + srcFund.name + ' → ' + dstFund.name;
+      else if (dstFund) fundText = ' ・ ' + dstFund.name + 'へ';
+      else if (srcFund) fundText = ' ・ ' + srcFund.name + 'から';
+      meta.textContent = '毎月' + dayLabel(tmpl.day) + fundText;
+      main.appendChild(meta);
+
+      const amount = document.createElement('div');
+      amount.className = 'recur-amount num';
+      amount.style.color = tmpl.type === 'income' ? 'var(--income)' : 'var(--expense)';
+      amount.textContent = (tmpl.type === 'income' ? '+' : '−') + yen(tmpl.amount);
+
+      row.appendChild(main);
+      row.appendChild(amount);
+      row.addEventListener('click', () => openRecurForm(tmpl));
+      list.appendChild(row);
+    }
+  }
+
+  function openRecurForm(tmpl) {
+    editingRecurId = tmpl ? tmpl.id : null;
+    $('recurFormTitle').textContent = tmpl ? '繰り返し項目を編集' : '繰り返し項目を追加';
+    $('recurDeleteBtn').hidden = !tmpl;
+    recurSetType(tmpl ? tmpl.type : 'expense');
+    recurSelectedCategoryId = tmpl ? tmpl.categoryId : null;
+    recurSelectedSourceFundId = tmpl ? recordSourceFund(tmpl) : null;
+    recurSelectedDestFundId = tmpl ? recordDestFund(tmpl) : null;
+    $('recurAmount').value = tmpl ? tmpl.amount : '';
+    $('recurDay').value = tmpl ? String(tmpl.day) : '1';
+    $('recurNote').value = tmpl ? (tmpl.note || '') : '';
+    renderRecurCategoryChips();
+    renderRecurSourceFundChips();
+    renderRecurDestFundChips();
+    validateRecurForm();
+    $('recurListView').hidden = true;
+    $('recurFormView').hidden = false;
+  }
+  function closeRecurForm() {
+    $('recurFormView').hidden = true;
+    $('recurListView').hidden = false;
+  }
+
+  $('recurAddOpenBtn').addEventListener('click', () => openRecurForm(null));
+  $('recurFormCancelBtn').addEventListener('click', closeRecurForm);
+  $('recurFormCloseBtn').addEventListener('click', () => { $('recurBackdrop').hidden = true; });
+
+  $('recurSaveBtn').addEventListener('click', async () => {
+    const tmpl = {
+      id: editingRecurId || ('r_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6)),
+      type: recurSelectedType,
+      categoryId: recurSelectedCategoryId,
+      amount: Math.round(parseFloat($('recurAmount').value)),
+      day: parseInt($('recurDay').value, 10),
+      sourceFundId: recurSelectedSourceFundId || null,
+      destFundId: recurSelectedDestFundId || null,
+      note: $('recurNote').value.trim(),
+    };
+    const existing = profile.recurring || [];
+    const updated = editingRecurId ? existing.map((t) => (t.id === editingRecurId ? tmpl : t)) : existing.concat([tmpl]);
+    profile = Object.assign({}, profile, { recurring: updated });
+    $('recurSaveBtn').disabled = true;
+    try {
+      await profileRef.update({ recurring: updated });
+      renderRecurList();
+      closeRecurForm();
+      materializeRecurring();
+    } catch (e) {
+      toast('保存できませんでした');
+    }
+    $('recurSaveBtn').disabled = false;
+  });
+
+  $('recurDeleteBtn').addEventListener('click', async () => {
+    if (!editingRecurId) return;
+    const updated = (profile.recurring || []).filter((t) => t.id !== editingRecurId);
+    profile = Object.assign({}, profile, { recurring: updated });
+    try {
+      await profileRef.update({ recurring: updated });
+      renderRecurList();
+      closeRecurForm();
+    } catch (e) {
+      toast('削除できませんでした');
+    }
+  });
+
+  $('recurBtn').addEventListener('click', () => {
+    $('recurListView').hidden = false;
+    $('recurFormView').hidden = true;
+    renderRecurList();
+    $('recurBackdrop').hidden = false;
+  });
+  $('recurCloseBtn').addEventListener('click', () => { $('recurBackdrop').hidden = true; });
+  $('recurBackdrop').addEventListener('click', (ev) => { if (ev.target === $('recurBackdrop')) $('recurBackdrop').hidden = true; });
+
+  function materializeRecurring() {
+    if (!profileLoaded || !entriesLoaded) return;
+    const templates = profile.recurring || [];
+    if (templates.length === 0) return;
+    const now = new Date();
+    const mk = monthKeyNow();
+    const todayDay = now.getDate();
+    const lastDay = lastDayOfMonth(now.getFullYear(), now.getMonth());
+    const existingKeys = new Set();
+    for (const e of entries) {
+      if (e.recurringId) existingKeys.add(e.recurringId + '|' + e.recurringMonth);
+    }
+    for (const tmpl of templates) {
+      const scheduledDay = tmpl.day === 0 ? lastDay : Math.min(tmpl.day, lastDay);
+      if (todayDay < scheduledDay) continue;
+      const key = tmpl.id + '|' + mk;
+      if (existingKeys.has(key) || pendingRecurring.has(key)) continue;
+      pendingRecurring.add(key);
+      const dateStr = mk + '-' + String(scheduledDay).padStart(2, '0');
+      entriesCol.add({
+        date: dateStr,
+        type: tmpl.type,
+        categoryId: tmpl.categoryId,
+        amount: tmpl.amount,
+        note: tmpl.note || '',
+        sourceFundId: recordSourceFund(tmpl),
+        destFundId: recordDestFund(tmpl),
+        recurringId: tmpl.id,
+        recurringMonth: mk,
+        createdAt: Date.now(),
+      }).then(() => {
+        toast('繰り返し項目を追加しました: ' + catById(tmpl.categoryId).name);
+      }).catch(() => { pendingRecurring.delete(key); });
+    }
+  }
+
+  // ---------- tabs ----------
+  function switchTab(tab) {
+    currentTab = tab;
+    $('tabLedgerBtn').classList.toggle('active', tab === 'ledger');
+    $('tabPastBtn').classList.toggle('active', tab === 'past');
+    $('tabGraphBtn').classList.toggle('active', tab === 'graph');
+    $('ledgerPane').hidden = tab !== 'ledger';
+    $('pastPane').hidden = tab !== 'past';
+    $('graphPane').hidden = tab !== 'graph';
+    $('addBtn').hidden = tab !== 'ledger';
+    if (tab === 'past') renderPastLedger();
+    if (tab === 'graph') renderFundTable();
+  }
+  $('tabLedgerBtn').addEventListener('click', () => switchTab('ledger'));
+  $('tabPastBtn').addEventListener('click', () => switchTab('past'));
+  $('tabGraphBtn').addEventListener('click', () => switchTab('graph'));
+
+  // ---------- fund table (表) ----------
+  function formatRowDate(dateStr) {
+    const d = new Date(dateStr + 'T00:00:00');
+    return (d.getMonth() + 1) + '月' + d.getDate() + '日(' + WD[d.getDay()] + ')';
+  }
+
+  function computeFundTableRows() {
+    const templates = profile.recurring || [];
+    const byFund = { fund_reserve: [], fund_carryover: [], fund_savings: [] };
+    for (const e of entries) {
+      const src = recordSourceFund(e);
+      const dst = recordDestFund(e);
+      if (src && byFund[src]) byFund[src].push({ date: e.date, delta: -e.amount });
+      if (dst && byFund[dst]) byFund[dst].push({ date: e.date, delta: e.amount });
+    }
+
+    const existingKeys = new Set();
+    for (const e of entries) {
+      if (e.recurringId) existingKeys.add(e.recurringId + '|' + e.recurringMonth);
+    }
+    const now = new Date();
+    if (templates.length > 0) {
+      for (let offset = 1; offset <= 12; offset++) {
+        const d = new Date(now.getFullYear(), now.getMonth() + offset, 1);
+        const mk = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+        const lastDay = lastDayOfMonth(d.getFullYear(), d.getMonth());
+        for (const tmpl of templates) {
+          const key = tmpl.id + '|' + mk;
+          if (existingKeys.has(key)) continue;
+          const scheduledDay = tmpl.day === 0 ? lastDay : Math.min(tmpl.day, lastDay);
+          const dateStr = mk + '-' + String(scheduledDay).padStart(2, '0');
+          const src = recordSourceFund(tmpl);
+          const dst = recordDestFund(tmpl);
+          if (src && byFund[src]) byFund[src].push({ date: dateStr, delta: -tmpl.amount });
+          if (dst && byFund[dst]) byFund[dst].push({ date: dateStr, delta: tmpl.amount });
+        }
+      }
+    }
+
+    function balanceAsOf(fid, date) {
+      let bal = 0;
+      for (const d of byFund[fid]) { if (d.date <= date) bal += d.delta; }
+      return bal;
+    }
+
+    const activeDates = new Set();
+    for (const fid of Object.keys(byFund)) {
+      for (const d of byFund[fid]) activeDates.add(d.date);
+    }
+
+    const today = todayStr();
+    const buildRow = (date) => {
+      const reserve = balanceAsOf('fund_reserve', date);
+      const carryover = balanceAsOf('fund_carryover', date);
+      const savings = balanceAsOf('fund_savings', date);
+      const cash = reserve + carryover;
+      const total = cash + savings;
+      return { date, reserve, carryover, savings, cash, total, isFuture: date > today };
+    };
+
+    const allDates = Array.from(activeDates);
+    const historical = allDates.filter((d) => d <= today).sort().reverse().map(buildRow);
+    const future = allDates.filter((d) => d > today).sort().map(buildRow);
+    return historical.concat(future);
+  }
+
+  function renderFundTable() {
+    const rows = computeFundTableRows();
+    $('graphEmpty').hidden = rows.length > 0;
+    $('fundTableWrap').hidden = rows.length === 0;
+    if (rows.length === 0) return;
+
+    const tbody = $('fundTableBody');
+    tbody.innerHTML = '';
+    const LOW_BALANCE_THRESHOLD = 100000;
+    const mkCell = (val) => {
+      const td = document.createElement('td');
+      td.className = 'num' + (val <= LOW_BALANCE_THRESHOLD ? ' cell-warn' : '');
+      td.textContent = (val < 0 ? '−' : '') + yen(val);
+      return td;
+    };
+    let prevMonthKey = null;
+    for (const r of rows) {
+      const rowMonthKey = r.date.slice(0, 7);
+      if (prevMonthKey !== null && rowMonthKey !== prevMonthKey) {
+        const gapRow = document.createElement('tr');
+        gapRow.className = 'month-gap-row';
+        const gapCell = document.createElement('td');
+        gapCell.colSpan = 7;
+        gapRow.appendChild(gapCell);
+        tbody.appendChild(gapRow);
+      }
+      prevMonthKey = rowMonthKey;
+
+      const tr = document.createElement('tr');
+      if (r.isFuture) tr.className = 'upcoming-table-row';
+
+      const dateTd = document.createElement('td');
+      dateTd.className = 'fund-table-month';
+      dateTd.appendChild(document.createTextNode(formatRowDate(r.date)));
+      if (r.isFuture) {
+        const badge = document.createElement('span');
+        badge.className = 'upcoming-badge';
+        badge.textContent = '予定';
+        badge.style.marginLeft = '6px';
+        dateTd.appendChild(badge);
+      }
+      tr.appendChild(dateTd);
+
+      tr.appendChild(mkCell(r.reserve));
+      tr.appendChild(mkCell(r.carryover));
+      const gapTd = document.createElement('td');
+      gapTd.className = 'fund-table-gap';
+      tr.appendChild(gapTd);
+      tr.appendChild(mkCell(r.savings));
+      tr.appendChild(mkCell(r.cash));
+      const totalTd = mkCell(r.total);
+      totalTd.classList.add('fund-col-total');
+      tr.appendChild(totalTd);
+
+      tbody.appendChild(tr);
+    }
+  }
+
+  init();
+})();
+</script>
+
+</body>
+</html>
