@@ -573,11 +573,18 @@
   .fund-table tbody tr.upcoming-table-row td.num { color: var(--ink-faint); }
   .fund-table tbody tr td.num.cell-warn { color: var(--expense); font-weight: 700; }
 
+  #recurList {
+    margin: 4px 20px 16px;
+    background: var(--surface-raised);
+    border-radius: 18px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
   .recur-row {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 11px 2px;
+    padding: 13px 16px;
     border-bottom: 1px solid var(--line);
     cursor: pointer;
     background: none;
@@ -586,12 +593,23 @@
     text-align: left;
     color: var(--ink);
   }
+  .recur-row:last-child { border-bottom: none; }
   .recur-row:hover { background: var(--accent-soft); }
   .recur-row .recur-main { flex: 1; min-width: 0; }
   .recur-row .recur-cat { display: flex; align-items: center; gap: 6px; font-size: 0.9rem; }
   .recur-row .recur-meta { font-size: 0.76rem; color: var(--ink-faint); margin-top: 2px; }
   .recur-row .recur-amount { font-size: 0.92rem; font-weight: 600; flex-shrink: 0; }
   .recur-badge { font-size: 0.7rem; color: var(--ink-faint); }
+
+  .recur-page-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 4px 20px 14px;
+  }
+  .recur-page-head h2 { font-size: 1.1rem; margin: 0; }
+  .recur-page-body { margin: 0 20px; display: flex; flex-direction: column; }
+  .recur-page-foot { display: flex; gap: 10px; margin: 0 20px 24px; }
 
   .field select {
     width: 100%;
@@ -630,7 +648,6 @@
   <header class="appbar">
     <h1 class="display">週次家計簿</h1>
     <div class="appbar-actions" id="appbarActions" hidden>
-      <button class="icon-btn" id="recurBtn" aria-label="繰り返し項目">⟳</button>
       <button class="icon-btn" id="settingsBtn" aria-label="カテゴリ設定">⚙</button>
     </div>
   </header>
@@ -638,7 +655,7 @@
   <div id="mainView" hidden>
     <div class="tabbar">
       <button class="tab active" id="tabLedgerBtn" type="button">記録</button>
-      <button class="tab" id="tabPastBtn" type="button">過去</button>
+      <button class="tab" id="tabPastBtn" type="button">繰り返し</button>
       <button class="tab" id="tabGraphBtn" type="button">表</button>
     </div>
 
@@ -663,7 +680,60 @@
     </div>
 
     <div id="pastPane" hidden>
-      <main class="ledger" id="pastLedger"></main>
+      <div id="recurListView">
+        <div class="cat-list" id="recurList"></div>
+        <div class="recur-page-foot">
+          <button class="btn primary" id="recurAddOpenBtn" type="button">+ 新しい繰り返し項目</button>
+        </div>
+      </div>
+
+      <div id="recurFormView" hidden>
+        <div class="recur-page-head">
+          <h2 id="recurFormTitle">繰り返し項目を追加</h2>
+          <button class="icon-btn" id="recurFormCloseBtn" aria-label="一覧に戻る">×</button>
+        </div>
+        <div class="recur-page-body">
+          <div class="field">
+            <label>種別</label>
+            <div class="type-toggle">
+              <button type="button" class="type-btn expense" id="recurTypeExpenseBtn">支出</button>
+              <button type="button" class="type-btn income" id="recurTypeIncomeBtn">収入</button>
+            </div>
+          </div>
+          <div class="field">
+            <label>カテゴリ</label>
+            <div class="chip-row" id="recurCategoryChips"></div>
+          </div>
+          <div class="field">
+            <label>金額(目安)</label>
+            <div class="amount-wrap">
+              <span class="yen">¥</span>
+              <input type="number" id="recurAmount" inputmode="numeric" min="0" step="1" placeholder="0">
+            </div>
+          </div>
+          <div class="field">
+            <label>毎月の日付</label>
+            <select id="recurDay"></select>
+          </div>
+          <div class="field">
+            <label>出どころ(任意)</label>
+            <div class="chip-row" id="recurSourceFundChips"></div>
+          </div>
+          <div class="field">
+            <label>出先(任意)</label>
+            <div class="chip-row" id="recurDestFundChips"></div>
+          </div>
+          <div class="field">
+            <label>メモ(任意)</label>
+            <input type="text" id="recurNote" maxlength="60" placeholder="例: 家賃, 給与明細など">
+          </div>
+        </div>
+        <div class="recur-page-foot">
+          <button class="btn danger" id="recurDeleteBtn" hidden>削除</button>
+          <button class="btn ghost" id="recurFormCancelBtn">キャンセル</button>
+          <button class="btn primary" id="recurSaveBtn" disabled>保存</button>
+        </div>
+      </div>
     </div>
 
     <div id="graphPane" hidden>
@@ -770,72 +840,6 @@
     </div>
   </div>
 
-  <div class="backdrop" id="recurBackdrop" hidden>
-    <div class="sheet" id="recurSheet" role="dialog" aria-modal="true">
-      <div class="sheet-handle"></div>
-
-      <div id="recurListView">
-        <div class="sheet-head">
-          <h2>繰り返し項目</h2>
-          <button class="icon-btn" id="recurCloseBtn" aria-label="閉じる">×</button>
-        </div>
-        <div class="sheet-body">
-          <div class="cat-list" id="recurList"></div>
-        </div>
-        <div class="sheet-foot">
-          <button class="btn primary" id="recurAddOpenBtn">+ 新しい繰り返し項目</button>
-        </div>
-      </div>
-
-      <div id="recurFormView" hidden>
-        <div class="sheet-head">
-          <h2 id="recurFormTitle">繰り返し項目を追加</h2>
-          <button class="icon-btn" id="recurFormCloseBtn" aria-label="閉じる">×</button>
-        </div>
-        <div class="sheet-body">
-          <div class="field">
-            <label>種別</label>
-            <div class="type-toggle">
-              <button type="button" class="type-btn expense" id="recurTypeExpenseBtn">支出</button>
-              <button type="button" class="type-btn income" id="recurTypeIncomeBtn">収入</button>
-            </div>
-          </div>
-          <div class="field">
-            <label>カテゴリ</label>
-            <div class="chip-row" id="recurCategoryChips"></div>
-          </div>
-          <div class="field">
-            <label>金額(目安)</label>
-            <div class="amount-wrap">
-              <span class="yen">¥</span>
-              <input type="number" id="recurAmount" inputmode="numeric" min="0" step="1" placeholder="0">
-            </div>
-          </div>
-          <div class="field">
-            <label>毎月の日付</label>
-            <select id="recurDay"></select>
-          </div>
-          <div class="field">
-            <label>出どころ(任意)</label>
-            <div class="chip-row" id="recurSourceFundChips"></div>
-          </div>
-          <div class="field">
-            <label>出先(任意)</label>
-            <div class="chip-row" id="recurDestFundChips"></div>
-          </div>
-          <div class="field">
-            <label>メモ(任意)</label>
-            <input type="text" id="recurNote" maxlength="60" placeholder="例: 家賃, 給与明細など">
-          </div>
-        </div>
-        <div class="sheet-foot">
-          <button class="btn danger" id="recurDeleteBtn" hidden>削除</button>
-          <button class="btn ghost" id="recurFormCancelBtn">キャンセル</button>
-          <button class="btn primary" id="recurSaveBtn" disabled>保存</button>
-        </div>
-      </div>
-    </div>
-  </div>
 </div>
 
 <script>
@@ -891,7 +895,6 @@
   let entries = [];
   let profileLoaded = false, entriesLoaded = false;
   let pendingRecurring = new Set();
-  let monthOverride = {};
   let upcomingOverride = {};
   let editingEntryId = null;
   let selectedCategoryId = null;
@@ -1042,7 +1045,6 @@
     renderRecurSourceFundChips();
     renderRecurDestFundChips();
     renderRecurList();
-    if (currentTab === 'past') renderPastLedger();
     if (currentTab === 'graph') renderFundTable();
   }
 
@@ -1360,66 +1362,6 @@
     return wrap;
   }
 
-  function buildPastMonthBlock(group, isOpen) {
-    let income = 0, expense = 0;
-    for (const e of group.items) { if (e.type === 'income') income += e.amount; else expense += e.amount; }
-    const net = income - expense;
-
-    const wrap = document.createElement('div');
-    wrap.className = 'month-group' + (isOpen ? ' open' : '');
-
-    const head = document.createElement('button');
-    head.type = 'button';
-    head.className = 'month-head';
-    const titleSpan = document.createElement('span');
-    titleSpan.className = 'month-title';
-    titleSpan.textContent = monthLabel(group.key);
-    const peek = document.createElement('span');
-    peek.className = 'month-peek';
-    const netSpan = document.createElement('span');
-    netSpan.className = 'month-net num';
-    netSpan.style.color = net >= 0 ? 'var(--income)' : 'var(--expense)';
-    netSpan.textContent = (net < 0 ? '−' : '+') + yen(net);
-    const chev = document.createElement('span');
-    chev.className = 'chevron';
-    chev.textContent = '▾';
-    peek.appendChild(netSpan);
-    peek.appendChild(chev);
-    head.appendChild(titleSpan);
-    head.appendChild(peek);
-    head.addEventListener('click', () => {
-      monthOverride[group.key] = !isOpen;
-      renderPastLedger();
-    });
-    wrap.appendChild(head);
-
-    if (isOpen) {
-      const entriesWrap = document.createElement('div');
-      entriesWrap.className = 'month-entries';
-      for (const e of group.items) {
-        entriesWrap.appendChild(buildEntryRow(e));
-      }
-      wrap.appendChild(entriesWrap);
-
-      const totalRow = document.createElement('div');
-      totalRow.className = 'month-total';
-      const label = document.createElement('span');
-      label.className = 'label';
-      label.textContent = monthLabel(group.key) + ' 合計';
-      const breakdown = document.createElement('span');
-      breakdown.className = 'breakdown num';
-      breakdown.innerHTML = '<span>収入 ' + yen(income) + '</span><span>支出 ' + yen(expense) + '</span>';
-      const netTotal = document.createElement('span');
-      netTotal.className = 'num';
-      netTotal.textContent = (net < 0 ? '−' : '+') + yen(net);
-      totalRow.appendChild(label);
-      totalRow.appendChild(breakdown);
-      totalRow.appendChild(netTotal);
-      wrap.appendChild(totalRow);
-    }
-    return wrap;
-  }
-
   function renderLedger() {
     const container = $('ledger');
     container.innerHTML = '';
@@ -1432,27 +1374,6 @@
     container.appendChild(buildCurrentMonthBlock(currentGroup));
     for (const ug of upcomingGroups) {
       container.appendChild(buildUpcomingMonthBlock(ug, ug.key === firstUpcomingKey));
-    }
-  }
-
-  function renderPastLedger() {
-    const container = $('pastLedger');
-    container.innerHTML = '';
-    const todayKey = monthKeyNow();
-    const pastGroups = groupByMonth(entries).filter((g) => g.key !== todayKey);
-
-    if (pastGroups.length === 0) {
-      const empty = document.createElement('div');
-      empty.className = 'state-card';
-      empty.innerHTML = '<span class="glyph">🗂️</span>過去の記録はまだありません。';
-      container.appendChild(empty);
-      return;
-    }
-
-    const newestPastKey = pastGroups[0].key;
-    for (const group of pastGroups) {
-      const isOpen = group.key in monthOverride ? monthOverride[group.key] : group.key === newestPastKey;
-      container.appendChild(buildPastMonthBlock(group, isOpen));
     }
   }
 
@@ -1947,7 +1868,7 @@
 
   $('recurAddOpenBtn').addEventListener('click', () => openRecurForm(null));
   $('recurFormCancelBtn').addEventListener('click', closeRecurForm);
-  $('recurFormCloseBtn').addEventListener('click', () => { $('recurBackdrop').hidden = true; });
+  $('recurFormCloseBtn').addEventListener('click', closeRecurForm);
 
   $('recurSaveBtn').addEventListener('click', async () => {
     const tmpl = {
@@ -1987,15 +1908,6 @@
       toast('削除できませんでした');
     }
   });
-
-  $('recurBtn').addEventListener('click', () => {
-    $('recurListView').hidden = false;
-    $('recurFormView').hidden = true;
-    renderRecurList();
-    $('recurBackdrop').hidden = false;
-  });
-  $('recurCloseBtn').addEventListener('click', () => { $('recurBackdrop').hidden = true; });
-  $('recurBackdrop').addEventListener('click', (ev) => { if (ev.target === $('recurBackdrop')) $('recurBackdrop').hidden = true; });
 
   function materializeRecurring() {
     if (!profileLoaded || !entriesLoaded) return;
@@ -2043,7 +1955,11 @@
     $('pastPane').hidden = tab !== 'past';
     $('graphPane').hidden = tab !== 'graph';
     $('addBtn').hidden = tab !== 'ledger';
-    if (tab === 'past') renderPastLedger();
+    if (tab === 'past') {
+      $('recurListView').hidden = false;
+      $('recurFormView').hidden = true;
+      renderRecurList();
+    }
     if (tab === 'graph') renderFundTable();
   }
   $('tabLedgerBtn').addEventListener('click', () => switchTab('ledger'));
