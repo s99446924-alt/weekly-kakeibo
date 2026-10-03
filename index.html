@@ -1170,45 +1170,54 @@
     return y + '年' + parseInt(m, 10) + '月';
   }
 
-  function computeUpcoming() {
-    const templates = profile.recurring || [];
-    if (templates.length === 0) return [];
-    const now = new Date();
-    const existingKeys = new Set();
+  // Future months shown after the current month: every REAL entry already dated
+  // beyond this month (e.g. a bonus manually entered for December), plus PROJECTED
+  // occurrences from recurring templates for months that don't already have a real
+  // entry for that template. Real entries render as normal, editable rows; projected
+  // ones render read-only with a "予定" badge.
+  function computeFutureMonths() {
+    const todayKey = monthKeyNow();
+    const byMonth = new Map();
     for (const e of entries) {
-      if (e.recurringId) existingKeys.add(e.recurringId + '|' + e.recurringMonth);
+      const mk = e.date.slice(0, 7);
+      if (mk <= todayKey) continue;
+      if (!byMonth.has(mk)) byMonth.set(mk, []);
+      byMonth.get(mk).push(Object.assign({}, e, { isProjected: false }));
     }
-    const results = [];
-    for (let offset = 1; offset <= 12; offset++) {
-      const d = new Date(now.getFullYear(), now.getMonth() + offset, 1);
-      const mk = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
-      const lastDay = lastDayOfMonth(d.getFullYear(), d.getMonth());
-      for (const tmpl of templates) {
-        const scheduledDay = tmpl.day === 0 ? lastDay : Math.min(tmpl.day, lastDay);
-        const dateStr = mk + '-' + String(scheduledDay).padStart(2, '0');
-        const key = tmpl.id + '|' + mk;
-        if (existingKeys.has(key)) continue;
-        results.push({
-          date: dateStr,
-          type: tmpl.type,
-          categoryId: tmpl.categoryId,
-          amount: tmpl.amount,
-        });
+
+    const templates = profile.recurring || [];
+    if (templates.length > 0) {
+      const existingKeys = new Set();
+      for (const e of entries) {
+        if (e.recurringId) existingKeys.add(e.recurringId + '|' + e.recurringMonth);
+      }
+      const now = new Date();
+      for (let offset = 1; offset <= 12; offset++) {
+        const d = new Date(now.getFullYear(), now.getMonth() + offset, 1);
+        const mk = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+        const lastDay = lastDayOfMonth(d.getFullYear(), d.getMonth());
+        for (const tmpl of templates) {
+          const key = tmpl.id + '|' + mk;
+          if (existingKeys.has(key)) continue;
+          const scheduledDay = tmpl.day === 0 ? lastDay : Math.min(tmpl.day, lastDay);
+          const dateStr = mk + '-' + String(scheduledDay).padStart(2, '0');
+          if (!byMonth.has(mk)) byMonth.set(mk, []);
+          byMonth.get(mk).push({
+            date: dateStr,
+            type: tmpl.type,
+            categoryId: tmpl.categoryId,
+            amount: tmpl.amount,
+            isProjected: true,
+          });
+        }
       }
     }
-    results.sort((a, b) => a.date.localeCompare(b.date));
-    return results;
-  }
 
-  function groupUpcomingByMonth(upcoming) {
-    const map = new Map();
-    for (const item of upcoming) {
-      const mk = item.date.slice(0, 7);
-      if (!map.has(mk)) map.set(mk, []);
-      map.get(mk).push(item);
-    }
-    const keys = Array.from(map.keys()).sort();
-    return keys.map((k) => ({ key: k, items: map.get(k) }));
+    const keys = Array.from(byMonth.keys()).sort();
+    return keys.map((k) => ({
+      key: k,
+      items: byMonth.get(k).sort((a, b) => a.date.localeCompare(b.date) || ((a.createdAt || 0) - (b.createdAt || 0))),
+    }));
   }
 
   function buildUpcomingRow(item) {
@@ -1293,7 +1302,7 @@
       const entriesWrap = document.createElement('div');
       entriesWrap.className = 'month-entries';
       for (const item of group.items) {
-        entriesWrap.appendChild(buildUpcomingRow(item));
+        entriesWrap.appendChild(item.isProjected ? buildUpcomingRow(item) : buildEntryRow(item));
       }
       wrap.appendChild(entriesWrap);
 
@@ -1381,7 +1390,7 @@
     const todayKey = monthKeyNow();
     const groups = groupByMonth(entries);
     const currentGroup = groups.find((g) => g.key === todayKey) || { key: todayKey, items: [] };
-    const upcomingGroups = groupUpcomingByMonth(computeUpcoming());
+    const upcomingGroups = computeFutureMonths();
     const firstUpcomingKey = upcomingGroups.length ? upcomingGroups[0].key : null;
 
     container.appendChild(buildCurrentMonthBlock(currentGroup));
