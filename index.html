@@ -1472,9 +1472,8 @@
       return;
     }
 
-    const newestPastKey = pastGroups[0].key;
     for (const group of pastGroups) {
-      const isOpen = group.key in historyOverride ? historyOverride[group.key] : group.key === newestPastKey;
+      const isOpen = group.key in historyOverride ? historyOverride[group.key] : true;
       container.appendChild(buildHistoryMonthBlock(group, isOpen));
     }
   }
