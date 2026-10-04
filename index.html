@@ -278,8 +278,8 @@
     border: 1.5px dashed var(--accent);
     box-shadow: none;
   }
-  .upcoming-row { opacity: 0.8; cursor: default; }
-  .upcoming-row:hover { background: none; }
+  .upcoming-row { opacity: 0.8; cursor: pointer; }
+  .upcoming-row:hover { background: var(--accent-soft); opacity: 1; }
   .upcoming-badge {
     font-size: 0.64rem;
     color: var(--accent);
@@ -910,6 +910,7 @@
   let selectedType = 'expense';
   let selectedSourceFundId = null;
   let selectedDestFundId = null;
+  let pendingRecurringLink = null;
   let currentTab = 'ledger';
 
   let editingRecurId = null;
@@ -1206,7 +1207,12 @@
             type: tmpl.type,
             categoryId: tmpl.categoryId,
             amount: tmpl.amount,
+            note: tmpl.note || '',
+            sourceFundId: recordSourceFund(tmpl),
+            destFundId: recordDestFund(tmpl),
             isProjected: true,
+            templateId: tmpl.id,
+            recurringMonth: mk,
           });
         }
       }
@@ -1220,7 +1226,8 @@
   }
 
   function buildUpcomingRow(item) {
-    const row = document.createElement('div');
+    const row = document.createElement('button');
+    row.type = 'button';
     row.className = 'entry-row upcoming-row';
     const d = new Date(item.date + 'T00:00:00');
 
@@ -1256,6 +1263,7 @@
     row.appendChild(dateBox);
     row.appendChild(mid);
     row.appendChild(amount);
+    row.addEventListener('click', () => openProjectedEntrySheet(item));
     return row;
   }
 
@@ -1762,6 +1770,7 @@
   }
 
   function openEntrySheet(entry) {
+    pendingRecurringLink = null;
     editingEntryId = entry ? entry.id : null;
     $('entrySheetTitle').textContent = entry ? '記録を編集' : '記録を追加';
     $('entryDeleteBtn').hidden = !entry;
@@ -1787,6 +1796,24 @@
   }
   function closeEntrySheet() { $('entryBackdrop').hidden = true; }
 
+  function openProjectedEntrySheet(item) {
+    openEntrySheet(null);
+    pendingRecurringLink = { recurringId: item.templateId, recurringMonth: item.recurringMonth };
+    $('entryDate').value = item.date;
+    setType(item.type);
+    selectedCategoryId = item.categoryId;
+    selectedSourceFundId = item.sourceFundId || null;
+    selectedDestFundId = item.destFundId || null;
+    $('entryAmount').value = item.amount;
+    $('entryNote').value = item.note || '';
+    $('repeatField').hidden = true;
+    renderCategoryChips();
+    renderEntrySourceFundChips();
+    renderEntryDestFundChips();
+    updateRepeatLabel();
+    validateEntryForm();
+  }
+
   $('addBtn').addEventListener('click', () => openEntrySheet(null));
   $('entryCloseBtn').addEventListener('click', closeEntrySheet);
   $('entryCancelBtn').addEventListener('click', closeEntrySheet);
@@ -1809,7 +1836,10 @@
     $('entrySaveBtn').disabled = true;
     try {
       let recurringId = null, recurringMonth = null;
-      if (wantsRepeat) {
+      if (pendingRecurringLink) {
+        recurringId = pendingRecurringLink.recurringId;
+        recurringMonth = pendingRecurringLink.recurringMonth;
+      } else if (wantsRepeat) {
         const day = new Date(data.date + 'T00:00:00').getDate();
         const tmpl = {
           id: 'r_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
