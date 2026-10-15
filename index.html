@@ -721,6 +721,10 @@
             <select id="recurDay"></select>
           </div>
           <div class="field">
+            <label>開始月(任意)</label>
+            <select id="recurStartMonth"></select>
+          </div>
+          <div class="field">
             <label>出どころ(任意)</label>
             <div class="chip-row" id="recurSourceFundChips"></div>
           </div>
@@ -1197,6 +1201,7 @@
         const mk = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
         const lastDay = lastDayOfMonth(d.getFullYear(), d.getMonth());
         for (const tmpl of templates) {
+          if (tmpl.startMonth && mk < tmpl.startMonth) continue;
           const key = tmpl.id + '|' + mk;
           if (existingKeys.has(key)) continue;
           const scheduledDay = tmpl.day === 0 ? lastDay : Math.min(tmpl.day, lastDay);
@@ -1910,6 +1915,23 @@
     sel.appendChild(monthEnd);
   })();
 
+  (function populateRecurStartMonthSelect() {
+    const sel = $('recurStartMonth');
+    const none = document.createElement('option');
+    none.value = '';
+    none.textContent = '指定なし(今月から)';
+    sel.appendChild(none);
+    const now = new Date();
+    for (let i = 0; i <= 24; i++) {
+      const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
+      const mk = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+      const opt = document.createElement('option');
+      opt.value = mk;
+      opt.textContent = monthLabel(mk);
+      sel.appendChild(opt);
+    }
+  })();
+
   function validateRecurForm() {
     const amount = parseFloat($('recurAmount').value);
     $('recurSaveBtn').disabled = !(recurSelectedCategoryId && amount > 0);
@@ -1959,7 +1981,8 @@
       if (srcFund && dstFund) fundText = ' ・ ' + srcFund.name + ' → ' + dstFund.name;
       else if (dstFund) fundText = ' ・ ' + dstFund.name + 'へ';
       else if (srcFund) fundText = ' ・ ' + srcFund.name + 'から';
-      meta.textContent = '毎月' + dayLabel(tmpl.day) + fundText;
+      const startText = tmpl.startMonth ? ' ・ ' + monthLabel(tmpl.startMonth) + '〜' : '';
+      meta.textContent = '毎月' + dayLabel(tmpl.day) + fundText + startText;
       main.appendChild(meta);
 
       const amount = document.createElement('div');
@@ -1984,6 +2007,7 @@
     recurSelectedDestFundId = tmpl ? recordDestFund(tmpl) : null;
     $('recurAmount').value = tmpl ? tmpl.amount : '';
     $('recurDay').value = tmpl ? String(tmpl.day) : '1';
+    $('recurStartMonth').value = tmpl ? (tmpl.startMonth || '') : '';
     $('recurNote').value = tmpl ? (tmpl.note || '') : '';
     renderRecurCategoryChips();
     renderRecurSourceFundChips();
@@ -2021,6 +2045,7 @@
       categoryId: recurSelectedCategoryId,
       amount: Math.round(parseFloat($('recurAmount').value)),
       day: parseInt($('recurDay').value, 10),
+      startMonth: $('recurStartMonth').value || null,
       sourceFundId: recurSelectedSourceFundId || null,
       destFundId: recurSelectedDestFundId || null,
       note: $('recurNote').value.trim(),
@@ -2066,6 +2091,7 @@
       if (e.recurringId) existingKeys.add(e.recurringId + '|' + e.recurringMonth);
     }
     for (const tmpl of templates) {
+      if (tmpl.startMonth && mk < tmpl.startMonth) continue;
       const scheduledDay = tmpl.day === 0 ? lastDay : Math.min(tmpl.day, lastDay);
       if (todayDay < scheduledDay) continue;
       const key = tmpl.id + '|' + mk;
@@ -2133,6 +2159,7 @@
         const mk = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
         const lastDay = lastDayOfMonth(d.getFullYear(), d.getMonth());
         for (const tmpl of templates) {
+          if (tmpl.startMonth && mk < tmpl.startMonth) continue;
           const key = tmpl.id + '|' + mk;
           if (existingKeys.has(key)) continue;
           const scheduledDay = tmpl.day === 0 ? lastDay : Math.min(tmpl.day, lastDay);
@@ -2231,6 +2258,5 @@
   init();
 })();
 </script>
-
 </body>
 </html>
