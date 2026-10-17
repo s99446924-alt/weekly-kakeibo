@@ -2194,7 +2194,7 @@
     };
 
     const allDates = Array.from(activeDates);
-    const historical = allDates.filter((d) => d <= today).sort().reverse().map(buildRow);
+    const historical = allDates.filter((d) => d <= today).sort().map(buildRow);
     const future = allDates.filter((d) => d > today).sort().map(buildRow);
     return historical.concat(future);
   }
