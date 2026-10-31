@@ -987,6 +987,7 @@
     profile = hadProfile ? loadedProfile : (allowSeed ? SEED_PROFILE : { categories: DEFAULT_CATEGORIES, recurring: [] });
     entries = hadEntries ? loadedEntries : (allowSeed ? SEED_ENTRIES : []);
     if (!Array.isArray(profile.recurring)) profile.recurring = [];
+    if (!Array.isArray(profile.skippedRecurring)) profile.skippedRecurring = [];
 
     if (allowSeed && (!hadProfile || !hadEntries)) {
       persistProfile();
@@ -1195,6 +1196,7 @@
       for (const e of entries) {
         if (e.recurringId) existingKeys.add(e.recurringId + '|' + e.recurringMonth);
       }
+      const skippedKeys = new Set(profile.skippedRecurring || []);
       const now = new Date();
       for (let offset = 1; offset <= 12; offset++) {
         const d = new Date(now.getFullYear(), now.getMonth() + offset, 1);
@@ -1203,7 +1205,7 @@
         for (const tmpl of templates) {
           if (tmpl.startMonth && mk < tmpl.startMonth) continue;
           const key = tmpl.id + '|' + mk;
-          if (existingKeys.has(key)) continue;
+          if (existingKeys.has(key) || skippedKeys.has(key)) continue;
           const scheduledDay = tmpl.day === 0 ? lastDay : Math.min(tmpl.day, lastDay);
           const dateStr = mk + '-' + String(scheduledDay).padStart(2, '0');
           if (!byMonth.has(mk)) byMonth.set(mk, []);
@@ -1880,6 +1882,16 @@
   $('entryDeleteBtn').addEventListener('click', async () => {
     if (!editingEntryId) return;
     try {
+      const entry = entries.find((e) => e.id === editingEntryId);
+      if (entry && entry.recurringId && entry.recurringMonth) {
+        const key = entry.recurringId + '|' + entry.recurringMonth;
+        const skipped = profile.skippedRecurring || [];
+        if (!skipped.includes(key)) {
+          const updatedSkipped = skipped.concat([key]);
+          profile = Object.assign({}, profile, { skippedRecurring: updatedSkipped });
+          await profileRef.update({ skippedRecurring: updatedSkipped });
+        }
+      }
       await entriesCol.doc(editingEntryId).delete();
       closeEntrySheet();
     } catch (e) {
@@ -2090,12 +2102,13 @@
     for (const e of entries) {
       if (e.recurringId) existingKeys.add(e.recurringId + '|' + e.recurringMonth);
     }
+    const skippedKeys = new Set(profile.skippedRecurring || []);
     for (const tmpl of templates) {
       if (tmpl.startMonth && mk < tmpl.startMonth) continue;
       const scheduledDay = tmpl.day === 0 ? lastDay : Math.min(tmpl.day, lastDay);
       if (todayDay < scheduledDay) continue;
       const key = tmpl.id + '|' + mk;
-      if (existingKeys.has(key) || pendingRecurring.has(key)) continue;
+      if (existingKeys.has(key) || pendingRecurring.has(key) || skippedKeys.has(key)) continue;
       pendingRecurring.add(key);
       const dateStr = mk + '-' + String(scheduledDay).padStart(2, '0');
       entriesCol.add({
@@ -2152,6 +2165,7 @@
     for (const e of entries) {
       if (e.recurringId) existingKeys.add(e.recurringId + '|' + e.recurringMonth);
     }
+    const skippedKeys = new Set(profile.skippedRecurring || []);
     const now = new Date();
     if (templates.length > 0) {
       for (let offset = 1; offset <= 12; offset++) {
@@ -2161,7 +2175,7 @@
         for (const tmpl of templates) {
           if (tmpl.startMonth && mk < tmpl.startMonth) continue;
           const key = tmpl.id + '|' + mk;
-          if (existingKeys.has(key)) continue;
+          if (existingKeys.has(key) || skippedKeys.has(key)) continue;
           const scheduledDay = tmpl.day === 0 ? lastDay : Math.min(tmpl.day, lastDay);
           const dateStr = mk + '-' + String(scheduledDay).padStart(2, '0');
           const src = recordSourceFund(tmpl);
