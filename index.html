@@ -654,9 +654,14 @@
 
   <div id="mainView" hidden>
     <div class="tabbar">
+      <button class="tab" id="tabHistoryBtn" type="button">過去</button>
       <button class="tab active" id="tabLedgerBtn" type="button">記録</button>
       <button class="tab" id="tabPastBtn" type="button">繰り返し</button>
       <button class="tab" id="tabGraphBtn" type="button">表</button>
+    </div>
+
+    <div id="historyPane" hidden>
+      <main class="ledger" id="recurHistoryLedger"></main>
     </div>
 
     <div id="ledgerPane">
@@ -680,11 +685,6 @@
     </div>
 
     <div id="pastPane" hidden>
-      <div class="tabbar" style="margin: 4px 20px 14px;">
-        <button class="tab active" id="recurSubTabItemsBtn" type="button">繰り返し項目</button>
-        <button class="tab" id="recurSubTabHistoryBtn" type="button">記録の履歴</button>
-      </div>
-
       <div id="recurListView">
         <div class="cat-list" id="recurList"></div>
         <div class="recur-page-foot">
@@ -742,10 +742,6 @@
           <button class="btn ghost" id="recurFormCancelBtn">キャンセル</button>
           <button class="btn primary" id="recurSaveBtn" disabled>保存</button>
         </div>
-      </div>
-
-      <div id="recurHistoryView" hidden>
-        <main class="ledger" id="recurHistoryLedger"></main>
       </div>
     </div>
 
@@ -922,7 +918,6 @@
   let recurSelectedSourceFundId = null;
   let recurSelectedDestFundId = null;
   let recurSelectedType = 'expense';
-  let recurSubTab = 'items';
   let historyOverride = {};
 
   const $ = (id) => document.getElementById(id);
@@ -1062,7 +1057,7 @@
     renderRecurSourceFundChips();
     renderRecurDestFundChips();
     renderRecurList();
-    if (currentTab === 'past' && recurSubTab === 'history') renderRecurHistory();
+    if (currentTab === 'history') renderRecurHistory();
     if (currentTab === 'graph') renderFundTable();
   }
 
@@ -1339,9 +1334,11 @@
     return wrap;
   }
 
-  function buildCurrentMonthBlock(group) {
+  function buildCurrentMonthBlock(group, projectedItems) {
+    const items = group.items.concat(projectedItems || [])
+      .sort((a, b) => a.date.localeCompare(b.date) || ((a.createdAt || 0) - (b.createdAt || 0)));
     let income = 0, expense = 0;
-    for (const e of group.items) { if (e.type === 'income') income += e.amount; else expense += e.amount; }
+    for (const e of items) { if (e.type === 'income') income += e.amount; else expense += e.amount; }
     const net = income - expense;
 
     const wrap = document.createElement('div');
@@ -1366,19 +1363,19 @@
 
     const entriesWrap = document.createElement('div');
     entriesWrap.className = 'month-entries';
-    if (group.items.length === 0) {
+    if (items.length === 0) {
       const note = document.createElement('div');
       note.className = 'month-empty-note';
       note.textContent = 'この月の記録はまだありません。右下の + から追加しましょう。';
       entriesWrap.appendChild(note);
     } else {
-      for (const e of group.items) {
-        entriesWrap.appendChild(buildEntryRow(e));
+      for (const e of items) {
+        entriesWrap.appendChild(e.isProjected ? buildUpcomingRow(e) : buildEntryRow(e));
       }
     }
     wrap.appendChild(entriesWrap);
 
-    if (group.items.length > 0) {
+    if (items.length > 0) {
       const totalRow = document.createElement('div');
       totalRow.className = 'month-total';
       const label = document.createElement('span');
@@ -1404,10 +1401,12 @@
     const todayKey = monthKeyNow();
     const groups = groupByMonth(entries);
     const currentGroup = groups.find((g) => g.key === todayKey) || { key: todayKey, items: [] };
-    const upcomingGroups = computeFutureMonths();
+    const futureMonths = computeFutureMonths();
+    const currentProjected = futureMonths.find((g) => g.key === todayKey);
+    const upcomingGroups = futureMonths.filter((g) => g.key !== todayKey);
     const firstUpcomingKey = upcomingGroups.length ? upcomingGroups[0].key : null;
 
-    container.appendChild(buildCurrentMonthBlock(currentGroup));
+    container.appendChild(buildCurrentMonthBlock(currentGroup, currentProjected ? currentProjected.items : []));
     for (const ug of upcomingGroups) {
       container.appendChild(buildUpcomingMonthBlock(ug, ug.key === firstUpcomingKey));
     }
@@ -2033,18 +2032,6 @@
     $('recurListView').hidden = false;
   }
 
-  function switchRecurSubTab(tab) {
-    recurSubTab = tab;
-    $('recurSubTabItemsBtn').classList.toggle('active', tab === 'items');
-    $('recurSubTabHistoryBtn').classList.toggle('active', tab === 'history');
-    $('recurListView').hidden = tab !== 'items';
-    $('recurFormView').hidden = true;
-    $('recurHistoryView').hidden = tab !== 'history';
-    if (tab === 'items') renderRecurList();
-    if (tab === 'history') renderRecurHistory();
-  }
-  $('recurSubTabItemsBtn').addEventListener('click', () => switchRecurSubTab('items'));
-  $('recurSubTabHistoryBtn').addEventListener('click', () => switchRecurSubTab('history'));
 
   $('recurAddOpenBtn').addEventListener('click', () => openRecurForm(null));
   $('recurFormCancelBtn').addEventListener('click', closeRecurForm);
@@ -2131,16 +2118,24 @@
   // ---------- tabs ----------
   function switchTab(tab) {
     currentTab = tab;
+    $('tabHistoryBtn').classList.toggle('active', tab === 'history');
     $('tabLedgerBtn').classList.toggle('active', tab === 'ledger');
     $('tabPastBtn').classList.toggle('active', tab === 'past');
     $('tabGraphBtn').classList.toggle('active', tab === 'graph');
+    $('historyPane').hidden = tab !== 'history';
     $('ledgerPane').hidden = tab !== 'ledger';
     $('pastPane').hidden = tab !== 'past';
     $('graphPane').hidden = tab !== 'graph';
     $('addBtn').hidden = tab !== 'ledger';
-    if (tab === 'past') switchRecurSubTab('items');
+    if (tab === 'history') renderRecurHistory();
+    if (tab === 'past') {
+      $('recurListView').hidden = false;
+      $('recurFormView').hidden = true;
+      renderRecurList();
+    }
     if (tab === 'graph') renderFundTable();
   }
+  $('tabHistoryBtn').addEventListener('click', () => switchTab('history'));
   $('tabLedgerBtn').addEventListener('click', () => switchTab('ledger'));
   $('tabPastBtn').addEventListener('click', () => switchTab('past'));
   $('tabGraphBtn').addEventListener('click', () => switchTab('graph'));
